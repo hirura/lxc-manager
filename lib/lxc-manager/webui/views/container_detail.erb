@@ -1,0 +1,165 @@
+<h1 class="page-header">Container Detail: <%= container.name %></h1>
+
+<div class="btn-group" role="group" aria-label="...">
+	<% edit_disabled    = if container.state == container.class::RUNNING then "" else "" end %>
+	<% start_disabled   = if container.state == container.class::RUNNING then "disabled" else "" end %>
+	<% stop_disabled    = if container.state == container.class::STOPPED then "disabled" else "" end %>
+	<% destroy_disabled = if container.state == container.class::RUNNING then "disabled" else "" end %>
+	<button type="button" class="btn btn-default" onClick="edit_container(<%= container.id %>);" <%= edit_disabled %>>
+		<span class="glyphicon glyphicon-cog"></span> Edit
+	</button>
+	<button type="button" class="btn btn-default" onClick="start_container(<%= container.id %>);" <%= start_disabled %>>
+		<span class="glyphicon glyphicon-play"></span> Start
+	</button>
+	<button type="button" class="btn btn-default" onClick="stop_container(<%= container.id %>);" <%= stop_disabled %>>
+		<span class="glyphicon glyphicon-stop"></span> Stop
+	</button>
+	<button type="button" class="btn btn-default" onClick="destroy_container(<%= container.id %>);" <%= destroy_disabled %>>
+		<span class="glyphicon glyphicon-remove-sign"></span> Destroy
+	</button>
+</div>
+
+<h2>Information</h2>
+<div class="table-responsive">
+	<table class="table table-striped">
+		<tbody>
+			<tr>
+				<td>Name</td>
+				<td><%= container.name %></td>
+			</tr>
+			<tr>
+				<td>Hostname</td>
+				<td><%= container.hostname %></td>
+			</tr>
+			<tr>
+				<td>Description</td>
+				<td><%= container.description %></td>
+			</tr>
+			<tr>
+				<td>State</td>
+				<td><%= container.state %></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<h2>Interfaces</h2>
+<button type="button" class="btn btn-default" onClick="create_interface(<%= container.id %>);">
+	<span class="glyphicon glyphicon-plus-sign"></span> Create
+</button>
+<div class="table-responsive">
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>IPv4 Address</th>
+				<th>IPv4 Gateway</th>
+				<th>Action</th>
+			</tr>
+		</thead>
+		<tbody>
+			<% container.interfaces.each.with_index{ |interface, idx| %>
+				<tr>
+					<td><%= interface.name %></td>
+					<td><%= interface.v4_address %></td>
+					<td><%= if interface.v4_gateway then interface.v4_gateway else '' end %></td>
+					<td>
+						<div class="btn-group btn-group-xs" role="group" aria-label="...">
+							<% edit_disabled    = if idx == 0 then "disabled" else "" end %>
+							<% destroy_disabled = if idx == 0 then "disabled" else "" end %>
+							<button type="button" class="btn btn-default btn-xs" onClick="edit_interface(<%= interface.id %>);" <%= edit_disabled %>>
+								<span class="glyphicon glyphicon-cog"></span> Edit
+							</button>
+							<button type="button" class="btn btn-default btn-xs" onClick="destroy_interface(<%= interface.id %>);" <%= destroy_disabled %>>
+								<span class="glyphicon glyphicon-remove-sign"></span> Destroy
+							</button>
+						</div>
+					</td>
+				</tr>
+			<% } %>
+		</tbody>
+	</table>
+</div>
+
+<h2>NAPTs</h2>
+<button type="button" class="btn btn-default" onClick="create_napt(<%= container.id %>);">
+	<span class="glyphicon glyphicon-plus-sign"></span> Create
+</button>
+<div class="table-responsive">
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>External Port</th>
+				<th>Internal Port</th>
+				<th>Action</th>
+			</tr>
+		</thead>
+		<tbody>
+			<% container.napts.each.with_index{ |napt, idx| %>
+				<tr>
+					<td><%= napt.name %></td>
+					<td><%= napt.sport %></td>
+					<td><%= napt.dport %></td>
+					<td>
+						<div class="btn-group btn-group-xs" role="group" aria-label="...">
+							<% edit_disabled    = if idx == 0 then "disabled" else "" end %>
+							<% destroy_disabled = if idx == 0 then "disabled" else "" end %>
+							<button type="button" class="btn btn-default btn-xs" onClick="edit_napt(<%= napt.id %>);" <%= edit_disabled %>>
+								<span class="glyphicon glyphicon-cog"></span> Edit
+							</button>
+							<button type="button" class="btn btn-default btn-xs" onClick="destroy_napt(<%= napt.id %>);" <%= destroy_disabled %>>
+								<span class="glyphicon glyphicon-remove-sign"></span> Destroy
+							</button>
+						</div>
+					</td>
+				</tr>
+			<% } %>
+		</tbody>
+	</table>
+</div>
+
+<h2>Reverse Proxies</h2>
+<button type="button" class="btn btn-default" onClick="create_reverse_proxy(<%= container.id %>);">
+	<span class="glyphicon glyphicon-plus-sign"></span> Create
+</button>
+<div class="table-responsive">
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Location</th>
+				<th>Proxy Port</th>
+				<th>Proxy Pass</th>
+				<th>Action</th>
+			</tr>
+		</thead>
+		<tbody>
+			<% container.reverse_proxies.each.with_index{ |reverse_proxy, idx| %>
+				<tr>
+					<td><a href="<%= "http://#{server_name}:#{reverse_proxy.listen_port}#{reverse_proxy.location}" %>"><%= reverse_proxy.name %></a></td>
+					<td><%= reverse_proxy.location %></td>
+					<td><%= reverse_proxy.proxy_port %></td>
+					<td><%= reverse_proxy.proxy_pass %></td>
+					<td>
+						<div class="btn-group btn-group-xs" role="group" aria-label="...">
+							<% edit_disabled    = if idx == 0 then "" else "" end %>
+							<% destroy_disabled = if idx == 0 then "" else "" end %>
+							<button type="button" class="btn btn-default btn-xs" onClick="edit_reverse_proxy(<%= reverse_proxy.id %>);" <%= edit_disabled %>>
+								<span class="glyphicon glyphicon-cog"></span> Edit
+							</button>
+							<button type="button" class="btn btn-default btn-xs" onClick="destroy_reverse_proxy(<%= reverse_proxy.id %>);" <%= destroy_disabled %>>
+								<span class="glyphicon glyphicon-remove-sign"></span> Destroy
+							</button>
+						</div>
+					</td>
+				</tr>
+			<% } %>
+		</tbody>
+	</table>
+</div>
+
+<!--
+<h2>Resources</h2>
+Not implemented yet.
+-->

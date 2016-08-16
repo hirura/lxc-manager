@@ -1,0 +1,8 @@
+<h1 class="page-header">Destroy Interface</h1>
+
+<h4>Are you sure to destroy <%= interface.name %> ?</h4>
+
+<form method="POST" action="/destroy_interface/<%= interface.id %>">
+	<a type="button" class="btn btn-default" href="javascript:history.back();">Cancel</a>
+	<button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#waitReloadModal">Submit</button>
+</form>

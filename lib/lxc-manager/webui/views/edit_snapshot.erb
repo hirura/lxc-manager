@@ -1,0 +1,14 @@
+<h1 class="page-header">Edit <%= snapshot.name %></h1>
+
+<form method="POST" action="/edit_snapshot/<%= snapshot.id %>">
+	<div class="form-group">
+		<label for="name" class="control-label">Name</label>
+		<input type="text" class="form-control" id="name" name="name" value="<%= name rescue snapshot.name %>">
+
+		<label for="description" class="control-label">Description</label>
+		<input type="text" class="form-control" id="description" name="description" value="<%= description rescue snapshot.description %>">
+	</div>
+
+	<a type="button" class="btn btn-default" href="javascript:history.back();">Cancel</a>
+	<button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#waitReloadModal">Submit</button>
+</form>

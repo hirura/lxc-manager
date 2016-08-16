@@ -1,0 +1,17 @@
+<h1 class="page-header">Create Distro</h1>
+
+<form method="POST" action="/create_distro">
+	<div class="form-group">
+		<label for="name" class="control-label">Name</label>
+		<input type="text" class="form-control" id="name" name="name" value="<%= name rescue '' %>">
+
+		<label for="iso" class="control-label">ISO</label>
+		<input type="text" class="form-control" id="iso" name="iso" value="<%= iso rescue '' %>">
+
+		<label for="template" class="control-label">Template</label>
+		<input type="text" class="form-control" id="template" name="template" value="<%= template rescue '' %>">
+	</div>
+
+	<a type="button" class="btn btn-default" href="javascript:history.back();">Cancel</a>
+	<button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#waitReloadModal">Submit</button>
+</form>

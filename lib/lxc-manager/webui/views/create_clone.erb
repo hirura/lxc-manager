@@ -1,0 +1,23 @@
+<h1 class="page-header">Create Clone</h1>
+
+<form method="POST" action="/create_clone/<%= snapshot.id %>">
+	<div class="form-group">
+		<label for="container" class="control-label">Container</label>
+		<input type="text" class="form-control" id="container" name="container" value="<%= snapshot.container.name %>" disabled>
+
+		<label for="snapshot" class="control-label">Snapshot</label>
+		<input type="text" class="form-control" id="snapshot" name="snapshot" value="<%= snapshot.name %>" disabled>
+
+		<label for="name" class="control-label">Name</label>
+		<input type="text" class="form-control" id="name" name="name" value=" <%= name rescue '' %>">
+
+		<label for="hostname" class="control-label">Hostname</label>
+		<input type="text" class="form-control" id="hostname" name="hostname" value="<%= hostname rescue snapshot.container.hostname %>">
+
+		<label for="description" class="control-label">Description</label>
+		<input type="text" class="form-control" id="description" name="description" value="<%= description rescue snapshot.container.description %>">
+	</div>
+
+	<a type="button" class="btn btn-default" href="javascript:history.back();">Cancel</a>
+	<button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#waitReloadModal">Submit</button>
+</form>

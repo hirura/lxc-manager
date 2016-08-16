@@ -1,0 +1,8 @@
+<h1 class="page-header">Promote</h1>
+
+<h4>Are you sure to promote <%= container.name %> ?</h4>
+
+<form method="POST" action="/promote/<%= container.id %>">
+	<a type="button" class="btn btn-default" href="/snapshots">Cancel</a>
+	<button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#waitReloadModal">Submit</button>
+</form>

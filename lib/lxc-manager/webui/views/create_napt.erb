@@ -1,0 +1,14 @@
+<h1 class="page-header">Create <%= container.name %>'s NAPT</h1>
+
+<form method="POST" action="/create_napt/<%= container.id %>">
+	<div class="form-group">
+		<label for="name" class="control-label">Name</label>
+		<input type="text" class="form-control" id="name" name="name" value="<%= name rescue '' %>">
+
+		<label for="dport" class="control-label">Port</label>
+		<input type="text" class="form-control" id="dport" name="dport" value="<%= dport rescue '' %>">
+	</div>
+
+	<a type="button" class="btn btn-default" href="javascript:history.back();">Cancel</a>
+	<button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#waitReloadModal">Submit</button>
+</form>

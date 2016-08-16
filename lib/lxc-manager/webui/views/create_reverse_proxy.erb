@@ -1,0 +1,20 @@
+<h1 class="page-header">Create <%= container.name %>'s Reverse Proxy</h1>
+
+<form method="POST" action="/create_reverse_proxy/<%= container.id %>">
+	<div class="form-group">
+		<label for="name" class="control-label">Name</label>
+		<input type="text" class="form-control" id="name" name="name" value="<%= name rescue '' %>">
+
+		<label for="location" class="control-label">Location</label>
+		<input type="text" class="form-control" id="location" name="location" value="<%= location rescue '/' %>">
+
+		<label for="proxy_port" class="control-label">Proxy Port</label>
+		<input type="text" class="form-control" id="proxy_port" name="proxy_port" value="<%= proxy_post rescue '80' %>">
+
+		<label for="proxy_pass" class="control-label">Proxy Pass</label>
+		<input type="text" class="form-control" id="proxy_pass" name="proxy_pass" value="<%= proxy_pass rescue '/' %>">
+	</div>
+
+	<a type="button" class="btn btn-default" href="javascript:history.back();">Cancel</a>
+	<button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#waitReloadModal">Submit</button>
+</form>

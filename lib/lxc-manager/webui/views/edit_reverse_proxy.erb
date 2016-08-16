@@ -1,0 +1,20 @@
+<h1 class="page-header">Edit <%= reverse_proxy.container.name %>'s Reverse Proxy <%= reverse_proxy.name%></h1>
+
+<form method="POST" action="/edit_reverse_proxy/<%= reverse_proxy.id %>">
+	<div class="form-group">
+		<label for="name" class="control-label">Name</label>
+		<input type="text" class="form-control" id="name" name="name" value="<%= name rescue reverse_proxy.name %>">
+
+		<label for="location" class="control-label">Location</label>
+		<input type="text" class="form-control" id="location" name="location" value="<%= location rescue reverse_proxy.location %>">
+
+		<label for="proxy_port" class="control-label">Proxy Port</label>
+		<input type="text" class="form-control" id="proxy_port" name="proxy_port" value="<%= proxy_port rescue reverse_proxy.proxy_port %>">
+
+		<label for="proxy_pass" class="control-label">Proxy Pass</label>
+		<input type="text" class="form-control" id="proxy_pass" name="proxy_pass" value="<%= proxy_pass rescue reverse_proxy.proxy_pass %>">
+	</div>
+
+	<a type="button" class="btn btn-default" href="javascript:history.back();">Cancel</a>
+	<button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#waitReloadModal">Submit</button>
+</form>

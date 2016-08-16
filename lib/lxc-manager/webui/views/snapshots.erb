@@ -1,0 +1,150 @@
+<h1 class="page-header">Snapshots</h1>
+
+<div class="table-responsive">
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Container</th>
+				<th>Action</th>
+				<th>Snapshot</th>
+				<th></th>
+				<th></th>
+				<th>Action</th>
+				<th>Clone</th>
+				<th>Action</th>
+			</tr>
+		</thead>
+		<tbody>
+			<% containers.all.each{ |container| %>
+				<% if container.snapshots.any? %><!-- when container has snapshots -->
+					<% container.snapshots.each.with_index{ |snapshot, idx| %>
+						<% if snapshot.clones.any? %><!-- when snapshot has clones -->
+							<% snapshot.clones.each.with_index{ |clone, jdx| %>
+								<tr>
+									<% if idx == 0 && jdx == 0 %>
+										<td rowspan="<%= container.snapshots.inject(0){ |sum, ss| sum + if ss.clones.size == 0 then 1 else ss.clones.size end } %>">
+											<%= container.name %>
+										</td>
+										<td rowspan="<%= container.snapshots.inject(0){ |sum, ss| sum + if ss.clones.size == 0 then 1 else ss.clones.size end } %>">
+											<div class="btn-group btn-group-xs" role="group" aria-label="...">
+												<button type="button" class="btn btn-default" onClick="create_snapshot(<%= container.id %>);">
+													<span class="glyphicon glyphicon-camera"></span> Take Snapshot
+												</button>
+												<button type="button" class="btn btn-default" onClick="destroy_container(<%= container.id %>);">
+													<span class="glyphicon glyphicon-remove-sign"></span> Destroy
+												</button>
+											</div>
+										</td>
+									<% end %>
+									<% if jdx == 0 %>
+										<td rowspan="<%= snapshot.clones.size %>">
+											<%= snapshot.name %>
+										</td>
+										<td rowspan="<%= snapshot.clones.size %>">
+											<%= snapshot.created_at.in_time_zone( config['time_zone'] ) %>
+										</td>
+										<td rowspan="<%= snapshot.clones.size %>">
+											<div class="btn-group btn-group-xs" role="group" aria-label="...">
+												<button type="button" class="btn btn-default" onClick="snapshot_detail(<%= snapshot.id %>);">
+													<span class="glyphicon glyphicon-info-sign"></span> Detail
+												</button>
+											</div>
+										</td>
+										<td rowspan="<%= snapshot.clones.size %>">
+											<div class="btn-group btn-group-xs" role="group" aria-label="...">
+												<button type="button" class="btn btn-default" onClick="create_clone(<%= snapshot.id %>);">
+													<span class="glyphicon glyphicon-duplicate"></span> Clone
+												</button>
+												<button type="button" class="btn btn-default" onClick="destroy_snapshot(<%= snapshot.id %>);">
+													<span class="glyphicon glyphicon-remove-sign"></span> Destroy
+												</button>
+											</div>
+										</td>
+									<% end %>
+									<td>
+										<%= clone.container.name %>
+									</td>
+									<td>
+										<div class="btn-group btn-group-xs" role="group" aria-label="...">
+											<button type="button" class="btn btn-default" onClick="promote(<%= clone.container.id %>);">
+												<span class="glyphicon glyphicon-random"></span> Promote
+											</button>
+											<button type="button" class="btn btn-default" onClick="destroy_container(<%= clone.container.id %>);">
+												<span class="glyphicon glyphicon-remove-sign"></span> Destroy
+											</button>
+										</div>
+									</td>
+								</tr>
+							<% } %>
+						<% else %><!-- when snapshot does NOT have clones -->
+							<tr>
+								<% if idx == 0 %>
+									<td rowspan="<%= container.snapshots.inject(0){ |sum, ss| sum + if ss.clones.size == 0 then 1 else ss.clones.size end } %>">
+										<%= container.name %>
+									</td>
+									<td rowspan="<%= container.snapshots.inject(0){ |sum, ss| sum + if ss.clones.size == 0 then 1 else ss.clones.size end } %>">
+										<div class="btn-group btn-group-xs" role="group" aria-label="...">
+											<button type="button" class="btn btn-default" onClick="create_snapshot(<%= container.id %>);">
+												<span class="glyphicon glyphicon-camera"></span> Take Snapshot
+											</button>
+											<button type="button" class="btn btn-default" onClick="destroy_container(<%= container.id %>);">
+												<span class="glyphicon glyphicon-remove-sign"></span> Destroy
+											</button>
+										</div>
+									</td>
+								<% end %>
+								<td>
+									<%= snapshot.name %>
+								</td>
+								<td>
+									<%= snapshot.created_at.in_time_zone( config['time_zone'] ) %>
+								</td>
+								<td>
+									<div class="btn-group btn-group-xs" role="group" aria-label="...">
+										<button type="button" class="btn btn-default" onClick="snapshot_detail(<%= snapshot.id %>);">
+											<span class="glyphicon glyphicon-info-sign"></span> Detail
+										</button>
+									</div>
+								</td>
+								<td>
+									<div class="btn-group btn-group-xs" role="group" aria-label="...">
+										<button type="button" class="btn btn-default" onClick="create_clone(<%= snapshot.id %>);">
+											<span class="glyphicon glyphicon-duplicate"></span> Clone
+										</button>
+										<button type="button" class="btn btn-default" onClick="destroy_snapshot(<%= snapshot.id %>);">
+											<span class="glyphicon glyphicon-remove-sign"></span> Destroy
+										</button>
+									</div>
+								</td>
+								<td></td>
+								<td></td>
+							</tr>
+						<% end %>
+					<% } %>
+				<% else %><!-- when container does NOT have snapshots -->
+					<tr>
+						<td>
+							<%= container.name %>
+						</td>
+						<td>
+							<div class="btn-group btn-group-xs" role="group" aria-label="...">
+								<button type="button" class="btn btn-default" onClick="create_snapshot(<%= container.id %>);">
+									<span class="glyphicon glyphicon-camera"></span> Take Snapshot
+								</button>
+								<button type="button" class="btn btn-default" onClick="destroy_container(<%= container.id %>);">
+									<span class="glyphicon glyphicon-remove-sign"></span> Destroy
+								</button>
+							</div>
+						</td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+				<% end %>
+			<% } %>
+		</tbody>
+	</table>
+</div>

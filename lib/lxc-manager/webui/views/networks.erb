@@ -1,0 +1,60 @@
+<h1 class="page-header">Networks</h1>
+
+<button type="button" class="btn btn-sm btn-default" onClick="create_network();">
+	<span class="glyphicon glyphicon-plus-sign"></span> Create
+</button>
+
+<div class="table-responsive">
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>IPv4 Address</th>
+				<th>Action</th>
+				<th>container name</th>
+				<th>interface name</th>
+				<th>v4 address</th>
+			</tr>
+		</thead>
+		<tbody>
+			<% networks.each{ |network| %>
+				<% destroy_disabled = if network.name == 'management' then 'disabled' else '' end %>
+				<% if network.interfaces.any? %>
+					<% network.interfaces.each.with_index{ |interface, idx| %>
+						<tr>
+							<% if idx == 0 %>
+								<td rowspan="<%= network.interfaces.size %>"><%= network.name %></td>
+								<td rowspan="<%= network.interfaces.size %>"><%= network.v4_address %>/<%= network.v4_prefix %></td>
+								<td rowspan="<%= network.interfaces.size %>">
+									<div class="btn-group btn-group-xs" role="group" aria-label="...">
+										<button type="button" class="btn btn-default" onClick="destroy_network(<%= network.id %>);" <%= destroy_disabled %>>
+											<span class="glyphicon glyphicon-remove-sign"></span> Destroy
+										</button>
+									</div>
+								</td>
+							<% end %>
+							<td><%= interface.container.name %></td>
+							<td><%= interface.name %></td>
+							<td><%= interface.v4_address %></td>
+						</tr>
+					<% } %>
+				<% else %>
+					<tr>
+						<td><%= network.name %></td>
+						<td><%= network.v4_address %>/<%= network.v4_prefix %></td>
+						<td>
+							<div class="btn-group btn-group-xs" role="group" aria-label="...">
+								<button type="button" class="btn btn-default" onClick="destroy_network(<%= network.id %>);" <%= destroy_disabled %>>
+									<span class="glyphicon glyphicon-remove-sign"></span> Destroy
+								</button>
+							</div>
+						</td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+				<% end %>
+			<% } %>
+		</tbody>
+	</table>
+</div>

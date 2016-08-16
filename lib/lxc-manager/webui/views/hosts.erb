@@ -1,0 +1,65 @@
+<h1 class="page-header">Hosts</h1>
+
+<button type="button" class="btn btn-sm btn-default" onClick="create_host();">
+	<span class="glyphicon glyphicon-plus-sign"></span> Create
+</button>
+
+<div class="table-responsive">
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Action</th>
+				<th>IPv4 Address</th>
+				<th>CPU Usage</th>
+				<th>Memory Usage</th>
+				<th>Container</th>
+			</tr>
+		</thead>
+		<tbody>
+			<% hosts.all.each{ |host| %>
+				<% resource = lxc_manager.class::HostResourceMonitor.get_resource lxc_manager.config, host %>
+				<% cpu_percentage = (100.to_f - resource['cpu_idle'].to_f).to_i %>
+				<% mem_total = resource['mem_total'].to_i.to_s %>
+				<% mem_percentage = (resource['mem_used'].to_i * 100) / resource['mem_total'].to_i %>
+
+				<% destroy_disabled = if host.containers.any? then 'disabled' else '' end %>
+				<% if host.containers.any? %>
+					<% host.containers.each.with_index{ |container, idx| %>
+						<tr>
+							<% if idx == 0 %>
+								<td rowspan="<%= host.containers.size %>"><%= host.name %></td>
+								<td rowspan="<%= host.containers.size %>">
+									<div class="btn-group btn-group-xs" role="group" aria-label="...">
+										<button type="button" class="btn btn-default" onClick="destroy_host(<%= host.id %>);" <%= destroy_disabled %>>
+											<span class="glyphicon glyphicon-remove-sign"></span> Destroy
+										</button>
+									</div>
+								</td>
+								<td rowspan="<%= host.containers.size %>"><%= host.v4_address %></td>
+								<td rowspan="<%= host.containers.size %>"><%= cpu_percentage %>%</td>
+								<td rowspan="<%= host.containers.size %>"><%= mem_percentage %>% of <%= mem_total.to_i / 1024 %> MiB</td>
+							<% end %>
+							<td><%= container.name %></td>
+						</tr>
+					<% } %>
+				<% else %>
+					<tr>
+						<td><%= host.name %></td>
+						<td>
+							<div class="btn-group btn-group-xs" role="group" aria-label="...">
+								<button type="button" class="btn btn-default" onClick="destroy_host(<%= host.id %>);" <%= destroy_disabled %>>
+									<span class="glyphicon glyphicon-remove-sign"></span> Destroy
+								</button>
+							</div>
+						</td>
+						<td><%= host.v4_address %></td>
+						<td><%= cpu_percentage %>%</td>
+						<td><%= mem_percentage %>% of <%= mem_total.to_i / 1024 %> MiB</td>
+						<td></td>
+					</tr>
+				<% end %>
+			<% } %>
+		</tbody>
+	</table>
+</div>

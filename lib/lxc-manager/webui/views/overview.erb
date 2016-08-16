@@ -1,0 +1,39 @@
+<h1 class="page-header">Overview</h1>
+
+<% resource = lxc_manager.class::StorageResourceMonitor.get_resource lxc_manager.config %>
+<% size = resource['size'].to_i %>
+<% allocated = resource['allocated'].to_i %>
+
+<h2>Information</h2>
+<div class="table-responsive">
+	<table class="table table-striped">
+		<tbody>
+			<tr>
+				<td><%= users.size %> Users</td>
+			</tr>
+			<tr>
+				<td><%= hosts.size %> Hosts</td>
+			</tr>
+			<tr>
+				<td><%= distros.size %> Distros</td>
+			</tr>
+			<tr>
+				<td><%= networks.size %> Networks</td>
+			</tr>
+			<tr>
+				<td><%= containers.size %> Containers</td>
+			</tr>
+			<tr>
+				<td><%= snapshots.size %> Snapshots</td>
+			</tr>
+			<tr>
+				<td><%= allocated / 1024 / 1024 / 1024 %> GiB used of <%= size / 1024 / 1024 / 1024 %> GiB Storage</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<!--
+<h2>Resources</h2>
+not implemented yet.
+-->

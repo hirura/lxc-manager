@@ -1,0 +1,24 @@
+<h1 class="page-header">Create Container</h1>
+
+<form method="POST" action="/create_container">
+	<div class="form-group">
+		<label for="name" class="control-label">Name</label>
+		<input type="text" class="form-control" id="name" name="name" value="<%= name rescue '' %>">
+
+		<label for="hostname" class="control-label">Hostname</label>
+		<input type="text" class="form-control" id="hostname" name="hostname" value="<%= hostname rescue '' %>">
+
+		<label for="description" class="control-label">Description</label>
+		<input type="text" class="form-control" id="description" name="description" value="<%= description rescue '' %>">
+
+		<label for="distro_id" class="control-label">Distro</label>
+		<select size="1" class="form-control" id="distro_id" name="distro_id">
+			<% distros.each{ |distro| %>
+				<option value="<%= distro.id %>"><%= distro.name %></option>
+			<% } %>
+		</select>
+	</div>
+
+	<a type="button" class="btn btn-default" href="javascript:history.back();">Cancel</a>
+	<button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#waitReloadModal">Submit</button>
+</form>

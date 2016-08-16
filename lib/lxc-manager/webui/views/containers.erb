@@ -1,0 +1,55 @@
+<h1 class="page-header">Containers</h1>
+
+<button type="button" class="btn btn-sm btn-default" onClick="create_container();">
+	<span class="glyphicon glyphicon-plus-sign"></span> Create
+</button>
+
+<div class="table-responsive">
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th></th>
+				<th>Parent Snapshot</th>
+				<th>Ssh Port</th>
+				<th>State</th>
+				<th>Created At</th>
+				<th>Action</th>
+			</tr>
+		</thead>
+		<tbody>
+			<% containers.all.each{ |container| %>
+				<tr>
+					<td>
+						<%= container.name %>
+					</td>
+					<td>
+						<button type="button" class="btn btn-default btn-xs" onClick="container_detail(<%= container.id %>);">
+							<span class="glyphicon glyphicon-info-sign"></span> Detail
+						</button>
+					</td>
+					<td><%= "#{container.clone.snapshot.container.name}@#{container.clone.snapshot.name}" rescue '' %></td>
+					<td><%= container.napts.find_by( name: 'management' ).sport rescue ''%></td>
+					<td><%= container.state %></td>
+					<td><%= container.created_at.in_time_zone( config['time_zone'] ) %></td>
+					<td>
+						<div class="btn-group btn-group-xs" role="group" aria-label="...">
+							<% start_disabled   = if container.state == container.class::RUNNING then "disabled" else "" end %>
+							<% stop_disabled    = if container.state == container.class::STOPPED then "disabled" else "" end %>
+							<% destroy_disabled = if container.state == container.class::RUNNING then "disabled" else "" end %>
+							<button type="button" class="btn btn-default" onClick="start_container(<%= container.id %>);" <%= start_disabled %>>
+								<span class="glyphicon glyphicon-play"></span> Start
+							</button>
+							<button type="button" class="btn btn-default" onClick="stop_container(<%= container.id %>);" <%= stop_disabled %>>
+								<span class="glyphicon glyphicon-stop"></span> Stop
+							</button>
+							<button type="button" class="btn btn-default" onClick="destroy_container(<%= container.id %>);" <%= destroy_disabled %>>
+								<span class="glyphicon glyphicon-remove-sign"></span> Destroy
+							</button>
+						</div>
+					</td>
+				</tr>
+			<% } %>
+		</tbody>
+	</table>
+</div>

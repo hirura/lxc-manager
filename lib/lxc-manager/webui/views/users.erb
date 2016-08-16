@@ -1,0 +1,23 @@
+<h1 class="page-header">Users</h1>
+
+<button type="button" class="btn btn-sm btn-default" onClick="create_user();">
+	<span class="glyphicon glyphicon-plus-sign"></span> Create
+</button>
+
+<div class="table-responsive">
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>name</th>
+			</tr>
+		</thead>
+		<tbody>
+			<% users.all.each{ |user| %>
+				<tr>
+					<td><%= user.name %></td>
+				</tr>
+			<% } %>
+		</tbody>
+	</table>
+	</ul>
+</div>

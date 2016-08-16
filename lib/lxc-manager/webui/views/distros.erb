@@ -1,0 +1,58 @@
+<h1 class="page-header">Distros</h1>
+
+<button type="button" class="btn btn-sm btn-default" onClick="create_distro();">
+	<span class="glyphicon glyphicon-plus-sign"></span> Create
+</button>
+
+<div class="table-responsive">
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Action</th>
+				<th>ISO</th>
+				<th>Template</th>
+				<th>Container</th>
+			</tr>
+		</thead>
+		<tbody>
+			<% distros.each{ |distro| %>
+				<% destroy_disabled = if distro.containers.any? then 'disabled' else '' end %>
+				<% if distro.containers.any? %>
+					<% distro.containers.each.with_index{ |container, idx| %>
+						<tr>
+							<% if idx == 0 %>
+								<td rowspan="<%= distro.containers.size %>"><%= distro.name %></td>
+								<td rowspan="<%= distro.containers.size %>">
+									<div class="btn-group btn-group-xs" role="group" aria-label="...">
+										<button type="button" class="btn btn-default" onClick="destroy_distro(<%= distro.id %>);" <%= destroy_disabled %>>
+											<span class="glyphicon glyphicon-remove-sign"></span> Destroy
+										</button>
+									</div>
+								</td>
+								<td rowspan="<%= distro.containers.size %>"><%= distro.iso %></td>
+								<td rowspan="<%= distro.containers.size %>"><%= distro.template %></td>
+							<% end %>
+							<td><%= container.name %></td>
+						</tr>
+					<% } %>
+				<% else %>
+					<tr>
+						<td><%= distro.name %></td>
+						<td>
+							<div class="btn-group btn-group-xs" role="group" aria-label="...">
+								<button type="button" class="btn btn-default" onClick="destroy_distro(<%= distro.id %>);" <%= destroy_disabled %>>
+									<span class="glyphicon glyphicon-remove-sign"></span> Destroy
+								</button>
+							</div>
+						</td>
+						<td><%= distro.iso %></td>
+						<td><%= distro.template %></td>
+						<td></td>
+					</tr>
+				<% end %>
+			<% } %>
+		</tbody>
+	</table>
+	</ul>
+</div>

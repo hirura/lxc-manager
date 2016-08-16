@@ -1,0 +1,33 @@
+<h1 class="page-header">Snapshot Detail: <%= snapshot.name %></h1>
+
+<div class="btn-group" role="group" aria-label="...">
+	<button type="button" class="btn btn-default" onClick="edit_snapshot(<%= snapshot.id %>);">
+		<span class="glyphicon glyphicon-cog"></span> Edit
+	</button>
+	<button type="button" class="btn btn-default" onClick="create_clone(<%= snapshot.id %>);">
+		<span class="glyphicon glyphicon-remove-sign"></span> Clone
+	</button>
+	<button type="button" class="btn btn-default" onClick="destroy_snapshot(<%= snapshot.id %>);">
+		<span class="glyphicon glyphicon-remove-sign"></span> Destroy
+	</button>
+</div>
+
+<h2>Information</h2>
+<div class="table-responsive">
+	<table class="table table-striped">
+		<tbody>
+			<tr>
+				<td>Name</td>
+				<td><%= snapshot.name %></td>
+			</tr>
+			<tr>
+				<td>Description</td>
+				<td><%= snapshot.description %></td>
+			</tr>
+			<tr>
+				<td>Created At</td>
+				<td><%= snapshot.created_at.in_time_zone( config['time_zone'] ) %></td>
+			</tr>
+		</tbody>
+	</table>
+</div>

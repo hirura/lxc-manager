@@ -1,0 +1,14 @@
+<h1 class="page-header">Edit <%= napt.container.name %>'s NAPT <%= napt.name%></h1>
+
+<form method="POST" action="/edit_napt/<%= napt.id %>">
+	<div class="form-group">
+		<label for="name" class="control-label">Name</label>
+		<input type="text" class="form-control" id="name" name="name" value="<%= name rescue napt.name %>">
+
+		<label for="dport" class="control-label">Port</label>
+		<input type="text" class="form-control" id="dport" name="dport" value="<%= dport rescue napt.dport %>">
+	</div>
+
+	<a type="button" class="btn btn-default" href="javascript:history.back();">Cancel</a>
+	<button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#waitReloadModal">Submit</button>
+</form>
