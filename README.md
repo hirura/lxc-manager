@@ -136,8 +136,8 @@ zfs create ext/pool
 zfs create ext/pool/lxc
 zfs create ext/pool/iso
 zfs create ext/pool/distro
+zfs create ext/pool/share
 zfs create ext/export
-zfs create ext/share
 ```
 
 LXC Manager servers use NFSv4 protocol to share LXC container files.
@@ -163,7 +163,7 @@ cat <<EOB | tee /etc/samba/smb.conf
   dns proxy = no
 
 [share]
-  path = /ext/share
+  path = /ext/pool/share
   valid users = root
   public = no
   guest ok = no
@@ -298,12 +298,6 @@ Remenber required packages are installed
 
 ```sh
 apt install -y lxc nfs-common sysstat
-```
-
-To mount LXC containers' directory, prepare directory to mount that.
-
-```sh
-mkdir -p /ext/mount
 ```
 
 To enable hosting servers, add host entry on LXC Manager WEB user interface.

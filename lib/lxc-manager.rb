@@ -70,6 +70,10 @@ class LxcManager
 				end
 			end
 
+			@logger.debug "#{self.class}##{__method__}: " + "reconfigure distros start"
+			RepoController.reconfigure @config, distros
+			@logger.debug "#{self.class}##{__method__}: " + "reconfigure distros end"
+
 			@logger.debug "#{self.class}##{__method__}: " + "configure hosts start"
 			Host.all.each{ |host|
 				HostController.configure @config, host
@@ -567,6 +571,10 @@ class LxcManager
 				@logger.debug "#{self.class}##{__method__}: " + "create lxc start"
 				LxcController.create @config, container
 				@logger.debug "#{self.class}##{__method__}: " + "create lxc end"
+
+				@logger.debug "#{self.class}##{__method__}: " + "export lxc start"
+				LxcController.exportfs @config, container
+				@logger.debug "#{self.class}##{__method__}: " + "export lxcs end"
 
 				@logger.debug "#{self.class}##{__method__}: " + "update lxc start"
 				LxcController.update_parameters @config, container
@@ -1374,6 +1382,10 @@ class LxcManager
 				ZfsController.create_clone @config, clone
 				create_zfs_success = true
 				@logger.debug "#{self.class}##{__method__}: " + "create zfs end"
+
+				@logger.debug "#{self.class}##{__method__}: " + "export lxc start"
+				LxcController.exportfs @config, container
+				@logger.debug "#{self.class}##{__method__}: " + "export lxcs end"
 
 				@logger.debug "#{self.class}##{__method__}: " + "update lxc parameters start"
 				LxcController.update_parameters @config, container

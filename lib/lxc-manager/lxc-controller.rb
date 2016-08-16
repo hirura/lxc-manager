@@ -19,9 +19,12 @@ class LxcManager
 			repo_url = File.join( config['repo_url'], distro.id.to_s )
 
 			dir_pool_lxc_path     = config['dir_pool_lxc_path']
+			dir_pool_share_path   = config['dir_pool_share_path']
 			dir_export_lxc_path   = config['dir_export_lxc_path']
+			dir_export_share_path = config['dir_export_share_path']
 			dir_mount_lxc_path    = config['dir_mount_lxc_path']
 			dir_mount_distro_path = config['dir_mount_distro_path']
+			dir_mount_share_path  = config['dir_mount_share_path']
 			dir_root_dev_path     = config['dir_root_dev_path']
 			pool_lxc_path     = File.join( dir_pool_lxc_path, container.id.to_s )
 			export_lxc_path   = File.join( dir_export_lxc_path, container.id.to_s )
@@ -36,6 +39,9 @@ class LxcManager
 				mkdir_export_lxc_success = false
 				mount_success = false
 				export_success = false
+				mkdir_export_share_success = false
+				mount_share_success = false
+				export_share_success = false
 
 				begin
 					ret = s.run "rm -rf /var/cache/lxc"
@@ -68,7 +74,7 @@ class LxcManager
 						raise "Failed: Edit config: couldn't edit #{pool_lxc_path}/config"
 					end
 
-					ret = s.run "echo 'lxc.mount.entry = /ext/share share none bind,create=dir 0 0' | tee -a #{pool_lxc_path}/config"
+					ret = s.run "echo 'lxc.mount.entry = #{dir_mount_share_path} share none bind,create=dir 0 0' | tee -a #{pool_lxc_path}/config"
 					if s.exit_status != 0
 						raise "Failed: Edit config: couldn't edit #{pool_lxc_path}/config"
 					end
@@ -151,45 +157,7 @@ class LxcManager
 					if s.exit_status != 0
 						raise "Failed: chkconfig --list: couldn't list script by chkconfig"
 					end
-
-					ret = s.run "mkdir -p #{export_lxc_path}"
-					if s.exit_status == 0
-						mkdir_export_lxc_success = true
-					else
-						raise "Failed: mkdir -p: couldn't mkdir -p #{mkdir_export_lxc_success}"
-					end
-
-					ret = s.run "mountpoint -q #{export_lxc_path}"
-					if s.exit_status != 0
-						ret = s.run "mount --bind #{pool_lxc_path} #{export_lxc_path}"
-						if s.exit_status == 0
-							mount_success = true
-						else
-							raise "Failed: Mount: couldn't mount #{pool_lxc_path} to #{export_lxc_path}"
-						end
-					else
-						raise "Unexpected: Mountpoint: already mountpoint: #{export_lxc_path}"
-					end
-
-					ret = s.run "exportfs -o rw,no_root_squash,no_subtree_check,nohide #{allowed_clients}:#{export_lxc_path}"
-					if s.exit_status == 0
-						export_success = true
-					else
-						raise "Failed: export: #{allowed_clients}:#{export_lxc_path}"
-					end
 				rescue => e
-					if export_success
-						ret = s.run "exportfs -u #{allowed_clients}:#{export_lxc_path}"
-					end
-
-					if mount_success
-						ret = s.run "umount -l #{export_lxc_path}"
-					end
-
-					if mkdir_export_lxc_success
-						ret = s.run "rm -rf #{export_lxc_path}"
-					end
-
 					raise
 				end
 			}
@@ -209,9 +177,12 @@ class LxcManager
 			repo_url = File.join( config['repo_url'], distro.id.to_s )
 
 			dir_pool_lxc_path     = config['dir_pool_lxc_path']
+			dir_pool_share_path   = config['dir_pool_share_path']
 			dir_export_lxc_path   = config['dir_export_lxc_path']
+			dir_export_share_path = config['dir_export_share_path']
 			dir_mount_lxc_path    = config['dir_mount_lxc_path']
 			dir_mount_distro_path = config['dir_mount_distro_path']
+			dir_mount_share_path  = config['dir_mount_share_path']
 			dir_root_dev_path     = config['dir_root_dev_path']
 			pool_lxc_path     = File.join( dir_pool_lxc_path, container.id.to_s )
 			export_lxc_path   = File.join( dir_export_lxc_path, container.id.to_s )
@@ -268,9 +239,12 @@ class LxcManager
 			repo_url = File.join( config['repo_url'], distro.id.to_s )
 
 			dir_pool_lxc_path     = config['dir_pool_lxc_path']
+			dir_pool_share_path   = config['dir_pool_share_path']
 			dir_export_lxc_path   = config['dir_export_lxc_path']
+			dir_export_share_path = config['dir_export_share_path']
 			dir_mount_lxc_path    = config['dir_mount_lxc_path']
 			dir_mount_distro_path = config['dir_mount_distro_path']
+			dir_mount_share_path  = config['dir_mount_share_path']
 			dir_root_dev_path     = config['dir_root_dev_path']
 			pool_lxc_path     = File.join( dir_pool_lxc_path, container.id.to_s )
 			export_lxc_path   = File.join( dir_export_lxc_path, container.id.to_s )
@@ -389,9 +363,12 @@ class LxcManager
 			repo_url = File.join( config['repo_url'], distro.id.to_s )
 
 			dir_pool_lxc_path     = config['dir_pool_lxc_path']
+			dir_pool_share_path   = config['dir_pool_share_path']
 			dir_export_lxc_path   = config['dir_export_lxc_path']
+			dir_export_share_path = config['dir_export_share_path']
 			dir_mount_lxc_path    = config['dir_mount_lxc_path']
 			dir_mount_distro_path = config['dir_mount_distro_path']
+			dir_mount_share_path  = config['dir_mount_share_path']
 			dir_root_dev_path     = config['dir_root_dev_path']
 			pool_lxc_path     = File.join( dir_pool_lxc_path, container.id.to_s )
 			export_lxc_path   = File.join( dir_export_lxc_path, container.id.to_s )
@@ -470,6 +447,114 @@ class LxcManager
 			logger.debug "#{self}##{__method__}: " + "cli-agent end"
 		end
 
+		def self.exportfs config, container
+			logger = LxcManager::Logger.instance
+
+			logger.info "#{self}##{__method__}"
+
+			return if LxcManager::DRY_RUN
+
+			distro = container.distro
+
+			template = File.join( config['template_dir'], distro.template )
+			repo_url = File.join( config['repo_url'], distro.id.to_s )
+
+			dir_pool_lxc_path     = config['dir_pool_lxc_path']
+			dir_pool_share_path   = config['dir_pool_share_path']
+			dir_export_lxc_path   = config['dir_export_lxc_path']
+			dir_export_share_path = config['dir_export_share_path']
+			dir_mount_lxc_path    = config['dir_mount_lxc_path']
+			dir_mount_distro_path = config['dir_mount_distro_path']
+			dir_mount_share_path  = config['dir_mount_share_path']
+			dir_root_dev_path     = config['dir_root_dev_path']
+			pool_lxc_path     = File.join( dir_pool_lxc_path, container.id.to_s )
+			export_lxc_path   = File.join( dir_export_lxc_path, container.id.to_s )
+			mount_lxc_path    = File.join( dir_mount_lxc_path, container.id.to_s )
+			mount_distro_path = File.join( dir_mount_distro_path, distro.id.to_s )
+			root_dev_path     = File.join( dir_root_dev_path, container.id.to_s )
+
+			allowed_clients = "#{config['inter_host_network_v4_address']}/#{config['inter_host_network_v4_prefix']}"
+
+			logger.debug "#{self}##{__method__}: " + "cli-agent start"
+			CliAgent.open( config['local_shell'] ){ |s|
+				mkdir_export_lxc_success = false
+				mount_success = false
+				export_success = false
+				mkdir_export_share_success = false
+				mount_share_success = false
+				export_share_success = false
+
+				begin
+					ret = s.run "mkdir -p #{export_lxc_path}"
+					if s.exit_status == 0
+						mkdir_export_lxc_success = true
+					else
+						raise "Failed: mkdir -p: couldn't mkdir -p #{export_lxc_path}"
+					end
+
+					ret = s.run "mountpoint -q #{export_lxc_path}"
+					if s.exit_status != 0
+						ret = s.run "mount --bind #{pool_lxc_path} #{export_lxc_path}"
+						if s.exit_status == 0
+							mount_success = true
+						else
+							raise "Failed: Mount: couldn't mount #{pool_lxc_path} to #{export_lxc_path}"
+						end
+					else
+						raise "Unexpected: Mountpoint: already mountpoint: #{export_lxc_path}"
+					end
+
+					ret = s.run "exportfs -o rw,no_root_squash,no_subtree_check,nohide #{allowed_clients}:#{export_lxc_path}"
+					if s.exit_status == 0
+						export_success = true
+					else
+						raise "Failed: export: #{allowed_clients}:#{export_lxc_path}"
+					end
+
+					ret = s.run "mkdir -p #{dir_export_share_path}"
+					if s.exit_status == 0
+						mkdir_export_share_success = true
+					else
+						raise "Failed: mkdir -p: couldn't mkdir -p #{dir_export_share_path}"
+					end
+
+					ret = s.run "mountpoint -q #{dir_export_share_path}"
+					if s.exit_status != 0
+						ret = s.run "mount --bind #{dir_pool_share_path} #{dir_export_share_path}"
+						if s.exit_status == 0
+							mount_share_success = true
+						else
+							raise "Failed: Mount: couldn't mount #{dir_pool_share_path} to #{dir_export_share_path}"
+						end
+					else
+						mount_share_success = true
+					end
+
+					ret = s.run "exportfs -o rw,no_root_squash,no_subtree_check,nohide #{allowed_clients}:#{dir_export_share_path}"
+					if s.exit_status == 0
+						export_share_success = true
+					else
+						raise "Failed: export: #{allowed_clients}:#{dir_export_share_path}"
+					end
+				rescue => e
+					if export_success
+						ret = s.run "exportfs -u #{allowed_clients}:#{export_lxc_path}"
+					end
+
+					if mount_success
+						ret = s.run "umount -l #{export_lxc_path}"
+					end
+
+					if mkdir_export_lxc_success
+						ret = s.run "rm -rf #{export_lxc_path}"
+					end
+
+					raise
+				end
+			}
+			logger.debug "#{self}##{__method__}: " + "cli-agent end"
+		end
+
 		def self.update_parameters config, container
 			logger = LxcManager::Logger.instance
 
@@ -483,9 +568,12 @@ class LxcManager
 			repo_url = File.join( config['repo_url'], distro.id.to_s )
 
 			dir_pool_lxc_path     = config['dir_pool_lxc_path']
+			dir_pool_share_path   = config['dir_pool_share_path']
 			dir_export_lxc_path   = config['dir_export_lxc_path']
+			dir_export_share_path = config['dir_export_share_path']
 			dir_mount_lxc_path    = config['dir_mount_lxc_path']
 			dir_mount_distro_path = config['dir_mount_distro_path']
+			dir_mount_share_path  = config['dir_mount_share_path']
 			dir_root_dev_path     = config['dir_root_dev_path']
 			pool_lxc_path     = File.join( dir_pool_lxc_path, container.id.to_s )
 			export_lxc_path   = File.join( dir_export_lxc_path, container.id.to_s )
@@ -534,7 +622,7 @@ class LxcManager
 						raise "Failed: Edit config: couldn't edit #{temporal_file}"
 					end
 
-					ret = s.run "echo 'lxc.mount.entry = /ext/share share none bind,create=dir 0 0' | tee -a #{temporal_file}"
+					ret = s.run "echo 'lxc.mount.entry = #{dir_mount_share_path} share none bind,create=dir 0 0' | tee -a #{temporal_file}"
 					if s.exit_status != 0
 						raise "Failed: Edit config: couldn't edit #{temporal_file}"
 					end
@@ -568,9 +656,12 @@ class LxcManager
 			repo_url = File.join( config['repo_url'], distro.id.to_s )
 
 			dir_pool_lxc_path     = config['dir_pool_lxc_path']
+			dir_pool_share_path   = config['dir_pool_share_path']
 			dir_export_lxc_path   = config['dir_export_lxc_path']
+			dir_export_share_path = config['dir_export_share_path']
 			dir_mount_lxc_path    = config['dir_mount_lxc_path']
 			dir_mount_distro_path = config['dir_mount_distro_path']
+			dir_mount_share_path  = config['dir_mount_share_path']
 			dir_root_dev_path     = config['dir_root_dev_path']
 			pool_lxc_path     = File.join( dir_pool_lxc_path, container.id.to_s )
 			export_lxc_path   = File.join( dir_export_lxc_path, container.id.to_s )
