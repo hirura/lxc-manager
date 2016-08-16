@@ -149,6 +149,7 @@ mkdir -p /ext/export/distro
 echo '/ext/export 172.16.8.0/24(rw,no_root_squash,no_subtree_check,fsid=0)' | tee /etc/exports
 systemctl start nfs-kernel-server
 systemctl enable nfs-kernel-server
+exportfs -ra
 ```
 
 Optionally, to share files external users and LXC containers, enable samba protocol.
@@ -172,8 +173,6 @@ EOB
 systemctl start smbd nmbd
 systemctl enable smbd nmbd
 pdbedit -a root
-rootroot
-rootroot
 systemctl reload smbd
 ```
 
