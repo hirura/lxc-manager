@@ -349,6 +349,8 @@ LXC template files are generated in /ext/lib/lxc-manager/templates/ directory by
 ### Add network
 
 Management network is used to:
+
 - communicate between manager server and LXC containers
 - communicate between external network/hosts and LXC containers with IP Masquarade, NAPT or reverse proxy.
+
 In addition you can create additional network for inter LXC container communication.
