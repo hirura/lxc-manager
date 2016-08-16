@@ -287,11 +287,11 @@ sudo sed -i -E 's/^PermitRootLogin .+/PermitRootLogin yes/' /etc/ssh/sshd_config
 ```
 
 Manager server configures hosting servers as root user using SSH protocol with no passphrase.
-Put manager server's id_rsa.pub information to hosting server root user's .ssh/authorization_keys file.
+Put manager server's id_rsa.pub information to hosting server root user's .ssh/authorized_keys file.
 
 ```sh
 sudo su -
-vi .ssh/authorization_keys
+vi .ssh/authorized_keys
 ```
 
 Remenber required packages are installed
