@@ -297,7 +297,7 @@ vi .ssh/authorized_keys
 Remenber required packages are installed
 
 ```sh
-apt install -y lxc nfs-common
+apt install -y lxc nfs-common sysstat
 ```
 
 To mount LXC containers' directory, prepare directory to mount that.
