@@ -372,7 +372,7 @@ class LxcManager
 							raise "Failed: Umount: couldn't umount #{mount_lxc_path}"
 						end
 					else
-						raise "Unexpected: Mountpoint: not mountpoint: #{mount_lxc_path}"
+						umount_mount_success = true
 					end
 
 					s.jump( :exit )
@@ -439,7 +439,7 @@ class LxcManager
 							raise "Failed: Mount: couldn't mount #{pool_lxc_path} to #{export_lxc_path}"
 						end
 					else
-						raise "Unexpected: Mountpoint: already mountpoint: #{export_lxc_path}"
+						mount_success = true
 					end
 
 					ret = s.run "exportfs -o rw,no_root_squash,no_subtree_check,nohide #{allowed_clients}:#{export_lxc_path}"
