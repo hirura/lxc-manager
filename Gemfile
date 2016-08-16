@@ -1,6 +1,7 @@
 source "https://rubygems.org"
 
 gem "rake"
+gem "rspec"
 gem "bcrypt"
 gem "sqlite3"
 gem "activerecord"
