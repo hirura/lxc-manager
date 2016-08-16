@@ -51,6 +51,15 @@ _lxc_mgr_dir=$(cd ${_dir}/../lib/lxc-manager && pwd)
 
 mkdir -p $_log_dir
 
+for i in $(seq 0 255)
+do
+	if [ ! -b /dev/loop$i ]
+	then
+		/bin/mknod -m 0640 /dev/loop$i b 7 $i
+		/bin/chown root:disk /dev/loop$i
+	fi
+done
+
 case "$1" in
 	start)
 		start
