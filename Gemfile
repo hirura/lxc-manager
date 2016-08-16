@@ -1,0 +1,10 @@
+source "https://rubygems.org"
+
+gem "rake"
+gem "bcrypt"
+gem "sqlite3"
+gem "activerecord"
+gem "acts_as_paranoid"
+gem "sinatra"
+gem "sinatra-contrib"
+gem "sinatra-activerecord"
