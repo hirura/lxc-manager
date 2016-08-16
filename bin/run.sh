@@ -46,7 +46,10 @@ status()
 
 
 _dir=$(cd $(dirname $0) && pwd)
+_log_dir=${_dir}/../log
 _lxc_mgr_dir=$(cd ${_dir}/../lib/lxc-manager && pwd)
+
+mkdir -p $_log_dir
 
 case "$1" in
 	start)
