@@ -84,10 +84,10 @@ class LxcManager
 						raise "Failed: Edit config: couldn't edit #{pool_lxc_path}/config"
 					end
 
-					ret = s.run "rm -f #{pool_lxc_path}/rootfs/sbin/shutdown"
-					if s.exit_status != 0
-						raise "Failed: Remove interface: couldn't remove #{pool_lxc_path}/rootfs/sbin/shutdown"
-					end
+					#ret = s.run "rm -f #{pool_lxc_path}/rootfs/sbin/shutdown"
+					#if s.exit_status != 0
+						#raise "Failed: Remove interface: couldn't remove #{pool_lxc_path}/rootfs/sbin/shutdown"
+					#end
 
 					ret = s.run "rm -f #{pool_lxc_path}/rootfs/etc/sysconfig/network-scripts/ifcfg-eth0"
 					if s.exit_status != 0
