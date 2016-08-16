@@ -86,6 +86,12 @@ class LxcManager
 			}
 			@logger.debug "#{self.class}##{__method__}: " + "configure networks end"
 
+			Container.all.each{ |container|
+				@logger.debug "#{self.class}##{__method__}: " + "export lxc start"
+				LxcController.exportfs @config, container
+				@logger.debug "#{self.class}##{__method__}: " + "export lxcs end"
+			}
+
 			@logger.debug "#{self.class}##{__method__}: " + "configure napts start"
 			IptablesController.reset @config, Napt.all
 			@logger.debug "#{self.class}##{__method__}: " + "configure napts end"
