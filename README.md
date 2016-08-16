@@ -180,7 +180,7 @@ You can get LXC Manager tool with git clone.
 
 ```sh
 cd /ext/lib
-git clone xxx
+git clone https://github.com/hirura/lxc-manager.git
 ```
 
 First you must install gems required by lxc-manager.
