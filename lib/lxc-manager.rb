@@ -601,13 +601,13 @@ class LxcManager
 		rescue
 			if create_management_napt_success
 				@logger.debug "#{self.class}##{__method__}: " + "destroy management napt start"
-				self.destroy_napt management_napt.id, locked: true
+				IptablesController.destroy @config, management_napt
 				@logger.debug "#{self.class}##{__method__}: " + "destroy management napt end"
 			end
 
 			if create_management_interface_success
 				@logger.debug "#{self.class}##{__method__}: " + "destroy management interface start"
-				self.destroy_interface management_interface.id, locked: true
+				LxcController.update_interfaces @config, container
 				@logger.debug "#{self.class}##{__method__}: " + "destroy management interface end"
 			end
 
@@ -1434,7 +1434,7 @@ class LxcManager
 
 				@logger.debug "#{self.class}##{__method__}: " + "create other reverse_proxies start"
 				snapshot.container.reverse_proxies.each{ |reverse_proxy|
-					other_reverse_proxies.push self.create_reverse_proxy container.id, reverse_proxy.name, reverse_proxy.location, reverse_proxy.port, reverse_proxy.pass, locked: true
+					other_reverse_proxies.push self.create_reverse_proxy container.id, reverse_proxy.name, reverse_proxy.location, reverse_proxy.proxy_port, reverse_proxy.proxy_pass, locked: true
 					create_other_reverse_proxies_success = true
 				}
 				@logger.debug "#{self.class}##{__method__}: " + "create other reverse_proxies end"
@@ -1446,7 +1446,7 @@ class LxcManager
 			if create_other_reverse_proxies_success
 				@logger.debug "#{self.class}##{__method__}: " + "destroy other reverse_proxies start"
 				other_reverse_proxies.each{ |reverse_proxy|
-					self.destroy_reverse_proxy reverse_proxy.id, locked: true
+					NginxController.destroy @config, reverse_proxy
 				}
 				@logger.debug "#{self.class}##{__method__}: " + "destroy other reverse_proxies end"
 			end
@@ -1454,7 +1454,7 @@ class LxcManager
 			if create_other_napts_success
 				@logger.debug "#{self.class}##{__method__}: " + "destroy other napts start"
 				other_napts.each{ |napt|
-					self.destroy_napt napt.id, locked: true
+					IptablesController.destroy @config, napt
 				}
 				@logger.debug "#{self.class}##{__method__}: " + "destroy other napts end"
 			end
@@ -1462,20 +1462,20 @@ class LxcManager
 			if create_other_interfaces_success
 				@logger.debug "#{self.class}##{__method__}: " + "destroy other interfaces start"
 				other_interfaces.each{ |interface|
-					self.destroy_interface interface.id, locked: true
+					LxcController.update_interfaces @config, container
 				}
 				@logger.debug "#{self.class}##{__method__}: " + "destroy other interfaces end"
 			end
 
 			if create_management_napt_success
 				@logger.debug "#{self.class}##{__method__}: " + "destroy management napt start"
-				self.destroy_napt management_napt.id, locked: true
+				IptablesController.destroy @config, management_napt
 				@logger.debug "#{self.class}##{__method__}: " + "destroy management napt end"
 			end
 
 			if create_management_interface_success
 				@logger.debug "#{self.class}##{__method__}: " + "destroy management interface start"
-				self.destroy_interface management_interface.id, locked: true
+				LxcController.update_interfaces @config, container
 				@logger.debug "#{self.class}##{__method__}: " + "destroy management interface end"
 			end
 
