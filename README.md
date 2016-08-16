@@ -202,8 +202,8 @@ LXC Manager's configurations are stored in lxc-manager/config directory.
 You must copy setting.yml.sample to setting.yml and edit setting.yml for your environment.
 
 ```sh
-cd /ext/lib/lxc-manager/config
-cp setting.yml.sample setting.yml.sample 
+cd /ext/lib/lxc-manager/
+cp config/setting.yml.sample config/setting.yml
 ```
 
 For example edit network interface name and bash path.
