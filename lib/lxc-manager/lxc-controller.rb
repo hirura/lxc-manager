@@ -164,68 +164,6 @@ class LxcManager
 			logger.debug "#{self}##{__method__}: " + "cli-agent end"
 		end
 
-		def self.destroy config, container
-			logger = LxcManager::Logger.instance
-
-			logger.info "#{self}##{__method__}"
-
-			return if LxcManager::DRY_RUN
-
-			distro = container.distro
-
-			template = File.join( config['template_dir'], distro.template )
-			repo_url = File.join( config['repo_url'], distro.id.to_s )
-
-			dir_pool_lxc_path     = config['dir_pool_lxc_path']
-			dir_pool_share_path   = config['dir_pool_share_path']
-			dir_export_lxc_path   = config['dir_export_lxc_path']
-			dir_export_share_path = config['dir_export_share_path']
-			dir_mount_lxc_path    = config['dir_mount_lxc_path']
-			dir_mount_distro_path = config['dir_mount_distro_path']
-			dir_mount_share_path  = config['dir_mount_share_path']
-			dir_root_dev_path     = config['dir_root_dev_path']
-			pool_lxc_path     = File.join( dir_pool_lxc_path, container.id.to_s )
-			export_lxc_path   = File.join( dir_export_lxc_path, container.id.to_s )
-			mount_lxc_path    = File.join( dir_mount_lxc_path, container.id.to_s )
-			mount_distro_path = File.join( dir_mount_distro_path, distro.id.to_s )
-			root_dev_path     = File.join( dir_root_dev_path, container.id.to_s )
-
-			allowed_clients = "#{config['inter_host_network_v4_address']}/#{config['inter_host_network_v4_prefix']}"
-
-			logger.debug "#{self}##{__method__}: " + "cli-agent start"
-			CliAgent.open( config['local_shell'] ){ |s|
-				uexport_success = false
-				umount_export_success = false
-
-				begin
-					ret = s.run "exportfs -u #{allowed_clients}:#{export_lxc_path}"
-					if s.exit_status == 0
-						uexport_success = true
-					else
-						raise "Failed: Un-export: couldn't un-exoprt #{allowed_clients}:#{export_lxc_path}"
-					end
-
-					ret = s.run "mkdir -p #{export_lxc_path}"
-					ret = s.run "mountpoint -q #{export_lxc_path}"
-					if s.exit_status == 0
-						ret = s.run "umount -l #{export_lxc_path}"
-						if s.exit_status == 0
-							umount_export_success = true
-						else
-							raise "Failed: Umount: couldn't umount #{export_lxc_path}"
-						end
-					else
-						umount_export_success = true
-					end
-
-					ret = s.run "rm -rf #{export_lxc_path}"
-				rescue
-					raise
-				end
-			}
-			logger.debug "#{self}##{__method__}: " + "cli-agent end"
-		end
-
 		def self.start config, container
 			logger = LxcManager::Logger.instance
 
@@ -549,6 +487,68 @@ class LxcManager
 						ret = s.run "rm -rf #{export_lxc_path}"
 					end
 
+					raise
+				end
+			}
+			logger.debug "#{self}##{__method__}: " + "cli-agent end"
+		end
+
+		def self.unexportfs config, container
+			logger = LxcManager::Logger.instance
+
+			logger.info "#{self}##{__method__}"
+
+			return if LxcManager::DRY_RUN
+
+			distro = container.distro
+
+			template = File.join( config['template_dir'], distro.template )
+			repo_url = File.join( config['repo_url'], distro.id.to_s )
+
+			dir_pool_lxc_path     = config['dir_pool_lxc_path']
+			dir_pool_share_path   = config['dir_pool_share_path']
+			dir_export_lxc_path   = config['dir_export_lxc_path']
+			dir_export_share_path = config['dir_export_share_path']
+			dir_mount_lxc_path    = config['dir_mount_lxc_path']
+			dir_mount_distro_path = config['dir_mount_distro_path']
+			dir_mount_share_path  = config['dir_mount_share_path']
+			dir_root_dev_path     = config['dir_root_dev_path']
+			pool_lxc_path     = File.join( dir_pool_lxc_path, container.id.to_s )
+			export_lxc_path   = File.join( dir_export_lxc_path, container.id.to_s )
+			mount_lxc_path    = File.join( dir_mount_lxc_path, container.id.to_s )
+			mount_distro_path = File.join( dir_mount_distro_path, distro.id.to_s )
+			root_dev_path     = File.join( dir_root_dev_path, container.id.to_s )
+
+			allowed_clients = "#{config['inter_host_network_v4_address']}/#{config['inter_host_network_v4_prefix']}"
+
+			logger.debug "#{self}##{__method__}: " + "cli-agent start"
+			CliAgent.open( config['local_shell'] ){ |s|
+				uexport_success = false
+				umount_export_success = false
+
+				begin
+					ret = s.run "exportfs -u #{allowed_clients}:#{export_lxc_path}"
+					if s.exit_status == 0
+						uexport_success = true
+					else
+						raise "Failed: Un-export: couldn't un-exoprt #{allowed_clients}:#{export_lxc_path}"
+					end
+
+					ret = s.run "mkdir -p #{export_lxc_path}"
+					ret = s.run "mountpoint -q #{export_lxc_path}"
+					if s.exit_status == 0
+						ret = s.run "umount -l #{export_lxc_path}"
+						if s.exit_status == 0
+							umount_export_success = true
+						else
+							raise "Failed: Umount: couldn't umount #{export_lxc_path}"
+						end
+					else
+						umount_export_success = true
+					end
+
+					ret = s.run "rm -rf #{export_lxc_path}"
+				rescue
 					raise
 				end
 			}

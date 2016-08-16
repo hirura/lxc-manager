@@ -538,6 +538,7 @@ class LxcManager
 		lock_success = false
 		update_db_success = false
 		create_zfs_success = false
+		exportfs_success = false
 		create_management_interface_success = false
 		create_management_napt_success = false
 
@@ -574,6 +575,7 @@ class LxcManager
 
 				@logger.debug "#{self.class}##{__method__}: " + "export lxc start"
 				LxcController.exportfs @config, container
+				exportfs_success = true
 				@logger.debug "#{self.class}##{__method__}: " + "export lxcs end"
 
 				@logger.debug "#{self.class}##{__method__}: " + "update lxc start"
@@ -607,6 +609,12 @@ class LxcManager
 				@logger.debug "#{self.class}##{__method__}: " + "destroy management interface start"
 				self.destroy_interface management_interface.id, locked: true
 				@logger.debug "#{self.class}##{__method__}: " + "destroy management interface end"
+			end
+
+			if exportfs_success
+				@logger.debug "#{self.class}##{__method__}: " + "unexport lxc start"
+				LxcController.unexportfs @config, container
+				@logger.debug "#{self.class}##{__method__}: " + "unexport lxcs end"
 			end
 
 			if create_zfs_success
@@ -663,9 +671,9 @@ class LxcManager
 				update_db_success = true
 				@logger.debug "#{self.class}##{__method__}: " + "update db end"
 
-				@logger.debug "#{self.class}##{__method__}: " + "destroy lxc start"
-				LxcController.destroy @config, container
-				@logger.debug "#{self.class}##{__method__}: " + "destroy lxc end"
+				@logger.debug "#{self.class}##{__method__}: " + "unexport lxc start"
+				LxcController.unexportfs @config, container
+				@logger.debug "#{self.class}##{__method__}: " + "unexport lxc end"
 
 				@logger.debug "#{self.class}##{__method__}: " + "destroy zfs start"
 				ZfsController.destroy @config, container
@@ -1345,6 +1353,7 @@ class LxcManager
 		lock_success = false
 		update_db_success = false
 		create_zfs_success = false
+		exportfs_success = false
 		create_management_interface_success = false
 		create_management_napt_success = false
 		create_other_interfaces_success = false
@@ -1385,6 +1394,7 @@ class LxcManager
 
 				@logger.debug "#{self.class}##{__method__}: " + "export lxc start"
 				LxcController.exportfs @config, container
+				exportfs_success = true
 				@logger.debug "#{self.class}##{__method__}: " + "export lxcs end"
 
 				@logger.debug "#{self.class}##{__method__}: " + "update lxc parameters start"
@@ -1467,6 +1477,12 @@ class LxcManager
 				@logger.debug "#{self.class}##{__method__}: " + "destroy management interface start"
 				self.destroy_interface management_interface.id, locked: true
 				@logger.debug "#{self.class}##{__method__}: " + "destroy management interface end"
+			end
+
+			if exportfs_success
+				@logger.debug "#{self.class}##{__method__}: " + "unexport lxc start"
+				LxcController.unexportfs @config, container
+				@logger.debug "#{self.class}##{__method__}: " + "unexport lxcs end"
 			end
 
 			if create_zfs_success
