@@ -206,12 +206,11 @@ cd /ext/lib/lxc-manager/
 cp config/setting.yml.sample config/setting.yml
 ```
 
-For example edit network interface name and bash path.
+For example edit network interface name.
 
 ```sh
 sed -i -e 's/^external_network_interface: eth0/external_network_interface: ens3/' config/setting.yml
 sed -i -e 's/^internal_network_interface: eth0/internal_network_interface: ens4/' config/setting.yml
-sed -i -e 's,/usr/bin/bash,/bin/bash,' config/setting.yml
 ```
 
 Before start LXC Manager, prepare DB.
