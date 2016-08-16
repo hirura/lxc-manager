@@ -1,0 +1,40 @@
+---
+zfs_zpool_name: ext
+zfs_pool_path: ext/pool
+zfs_mount_path: ext/mount
+zfs_pool_lxc_path: ext/pool/lxc
+zfs_pool_iso_path: ext/pool/iso
+zfs_pool_distro_path: ext/pool/distro
+dir_pool_lxc_path: /ext/pool/lxc
+dir_pool_iso_path: /ext/pool/iso
+dir_pool_distro_path: /ext/pool/distro
+dir_mount_path: /ext/mount
+dir_mount_lxc_path: /ext/mount/lxc
+dir_mount_distro_path: /ext/mount/distro
+dir_export_lxc_path: /ext/export/lxc
+dir_export_distro_path: /ext/export/distro
+dir_root_dev_path: /ext/root_dev
+webui_url: http://0.0.0.0:8080
+time_zone: Asia/Tokyo
+lxc_manager_dir: /ext/lib/lxc-manager
+template_dir: /ext/lib/lxc-manager/template
+repo_url: http://localhost:8000
+external_network_interface: eth0
+internal_network_interface: eth0
+inter_host_network_v4_address: 172.16.8.0
+inter_host_network_v4_prefix: 24
+inter_host_network_interface_v4_address: 172.16.8.51
+management_network_vlan_id: 100
+management_network_v4_address: 10.255.0.0
+management_network_v4_prefix: 16
+management_network_bridge_v4_address: 10.255.255.254
+service_network_vlan_range_start: 1001
+service_network_vlan_range_end: 3000
+napt_sport_range_start: 10001
+napt_sport_range_end: 19999
+local_shell:
+  shell_command: /bin/bash --login
+  shell_prompt:  !ruby/regexp /^[\[]?.+[:@].+ .+[\]]?[\#\$] /
+nginx_conf_dir: /etc/nginx/conf.d
+reverse_proxy_listen_port_range_start: 20001
+reverse_proxy_listen_port_range_end: 29999
