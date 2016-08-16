@@ -5,7 +5,7 @@ zfs_mount_path: ext/mount
 zfs_pool_lxc_path: ext/pool/lxc
 zfs_pool_iso_path: ext/pool/iso
 zfs_pool_distro_path: ext/pool/distro
-zfs_pool_distro_path: ext/pool/share
+zfs_pool_share_path: ext/pool/share
 dir_pool_lxc_path: /ext/pool/lxc
 dir_pool_iso_path: /ext/pool/iso
 dir_pool_distro_path: /ext/pool/distro
