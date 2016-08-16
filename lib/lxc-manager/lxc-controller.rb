@@ -547,7 +547,10 @@ class LxcManager
 						umount_export_success = true
 					end
 
-					ret = s.run "rm -rf #{export_lxc_path}"
+					ret = s.run "rmdir #{export_lxc_path}"
+					if s.exit_status != 0
+						logger.warn "#{self}##{__method__}: " + "Couldn't rmdir #{export_lxc_path}"
+					end
 				rescue
 					raise
 				end
