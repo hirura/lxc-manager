@@ -660,6 +660,15 @@ class LxcManager
 			end
 
 			container = Container.find( id )
+			if container.state == Container::RUNNING
+				raise "Container #{container.name} is running. Cannot destroy"
+			end
+
+			ActiveRecord::Base.transaction do
+				container.destroy!
+				raise ActiveRecord::Rollback
+			end
+
 			container.reverse_proxies.each{ |reverse_proxy|
 				destroy_reverse_proxy reverse_proxy.id, locked: true
 			}
