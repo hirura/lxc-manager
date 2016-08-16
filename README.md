@@ -26,6 +26,8 @@ And tested LXC Containers are CentOS 6.X and RHEL 6.X.
 - nfs-kernel-server
 - nfs-common
 
+#### Operations
+
 Now let's start installing LXC Manager.
 
 LXC Manager requires one or more network interfaces on both manager/storage server and hosting servers.
@@ -236,6 +238,8 @@ Now you can access LXC Manager WEB user interface: http://xxx.xxx.xxx.xxx:port/
 - lxc
 - nfs-common
 
+#### Operations
+
 LXC Manager's hosting servers requires one or more network interfaces as well as manager/storage server.
 
 ```sh
@@ -305,3 +309,46 @@ mkdir -p /ext/mount
 ```
 
 To enable hosting servers, add host entry on LXC Manager WEB user interface.
+
+
+## How to use
+
+First, start LXC Manager.
+
+```sh
+/ext/lib/lxc-manager/bin/run.sh start
+```
+
+Now you can access to http://address:port/.
+
+Default user and password is Adminitorator and Admin123.
+
+Before creating and starting LXC containers, the following steps are required.
+
+- Add user (optional)
+- Add host
+- Add disto
+- Add network (optional)
+
+### Add user
+
+You can add more users to login to LXC Manager.
+Note: Currently this users are used to controll login and logout only.
+
+### Add host
+
+Specify on which hosts LXC containers run.
+The hosts are configured with abobe Installation steps.
+
+### Add distro
+
+To create LXC Container, LXC Manager uses CentOS 6.X or RHEL 6.X ISO images and LXC templates.
+OS ISO images are stored in manager server's /ext/pool/iso directory by default.
+LXC template files are generated in /ext/lib/lxc-manager/templates/ directory by default in installation steps.
+
+### Add network
+
+Management network is used to:
+- communicate between manager server and LXC containers
+- communicate between external network/hosts and LXC containers with IP Masquarade, NAPT or reverse proxy.
+In addition you can create additional network for inter LXC container communication.
