@@ -29,7 +29,7 @@
 						</button>
 					</td>
 					<td><%= "#{container.clone.snapshot.container.name}@#{container.clone.snapshot.name}" rescue '' %></td>
-					<td><%= container.napts.find_by( name: 'management' ).sport rescue ''%></td>
+					<td><a href="/teraterm_macro/<%= container.id %>"><%= container.napts.find_by( name: 'management' ).sport rescue ''%></a></td>
 					<td><%= container.state %></td>
 					<td><%= container.created_at.in_time_zone( config['time_zone'] ) %></td>
 					<td>

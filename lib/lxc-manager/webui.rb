@@ -1903,6 +1903,43 @@ class LxcManager
 				erb :create_clone, locals: locals
 			end
 		end
+
+		get '/teraterm_macro/:id' do
+			begin
+				logger = LxcManager::Logger.instance
+				logger.info "GET /teraterm_macro/#{params[:id]}"
+				logger.debug "params: #{params}"
+				if session[:user_id]
+					lxc_manager = LxcManager.new
+					logger.info "requested by #{lxc_manager.users.find( session[:user_id] ).name}"
+					lxc_manager = lxc_manager
+					config      = lxc_manager.config
+					container   = lxc_manager.containers.find( params[:id] )
+					server_name = request.env['SERVER_NAME']
+					attachment "login_#{params[:id]}.ttl"
+					<<-EOB
+					addr = '#{server_name}'
+					port = '#{container.napts.find_by_name( 'management' ).sport}'
+					username = 'root'
+					password = 'rootroot'
+
+					sprintf2 var '%s:%s /ssh /2 /auth=password /user=%s /passwd="%s"' addr port username password
+					connect var
+					EOB
+				else
+					logger.info 'No session[:user_id]: Redirect to /login'
+					redirect '/login'
+				end
+			rescue => e
+				logger.error (["#{e.backtrace.first}: #{e.message} (#{e.class})"] + e.backtrace.drop(1)).join("\n\t")
+				lxc_manager = LxcManager.new
+				locals = Hash.new
+				locals["lxc_manager"] = lxc_manager
+				locals["config"]      = lxc_manager.config
+				locals["containers"]  = lxc_manager.containers
+				erb :containers, locals: locals
+			end
+		end
 	end
 end
 
