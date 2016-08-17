@@ -377,6 +377,7 @@ class LxcManager
 		@logger.debug "#{self.class}##{__method__}: " + "locked: #{locked}"
 
 		distro = nil
+
 		lock_success = false
 		update_db_success = false
 		destroy_repo_success = false
@@ -397,14 +398,13 @@ class LxcManager
 				distro.destroy!
 				update_db_success = true
 				@logger.debug "#{self.class}##{__method__}: " + "update db end"
-				distro
+
+				@logger.debug "#{self.class}##{__method__}: " + "destroy repo start"
+				RepoController.destroy @config, distro
+				destroy_repo_success = true
+				@logger.debug "#{self.class}##{__method__}: " + "destroy repo end"
 			end
 			@logger.debug "#{self.class}##{__method__}: " + "transaction end"
-
-			@logger.debug "#{self.class}##{__method__}: " + "destroy repo start"
-			RepoController.destroy @config, distro
-			destroy_repo_success = true
-			@logger.debug "#{self.class}##{__method__}: " + "destroy repo end"
 
 			distro
 		rescue
@@ -431,6 +431,7 @@ class LxcManager
 		@logger.debug "#{self.class}##{__method__}: " + "locked: #{locked}"
 
 		network = nil
+
 		lock_success = false
 		update_db_success = false
 		create_network_success = false
@@ -506,6 +507,7 @@ class LxcManager
 				network.destroy!
 				update_db_success = true
 				@logger.debug "#{self.class}##{__method__}: " + "update db end"
+
 				@logger.debug "#{self.class}##{__method__}: " + "destroy network start"
 				hosts = Host.all
 				NetworkController.destroy @config, network, hosts
@@ -541,11 +543,11 @@ class LxcManager
 		container = nil
 		management_interface = nil
 		management_napt = nil
+
 		lock_success = false
 		update_db_success = false
 		create_zfs_success = false
 		exportfs_success = false
-		create_management_interface_success = false
 		create_management_napt_success = false
 
 		begin
@@ -559,6 +561,9 @@ class LxcManager
 
 			@logger.debug "#{self.class}##{__method__}: " + "transaction start"
 			ActiveRecord::Base.transaction do
+				management_network = Network.find_by_name( 'management' )
+				mng_nw_v4_gateway  = @config['management_network_bridge_v4_address']
+
 				@logger.debug "#{self.class}##{__method__}: " + "update db start"
 				container = Container.new
 				container[:name]        = name
@@ -567,6 +572,22 @@ class LxcManager
 				container[:distro_id]   = distro_id
 				container[:state]       = LxcManager::Container::STOPPED
 				container.save!
+
+				management_interface = Interface.new
+				management_interface[:network_id]   = management_network.id
+				management_interface[:container_id] = container.id
+				management_interface[:name]         = 'management'
+				management_interface[:v4_address]   = management_interface.assign_v4_address
+				management_interface[:v4_gateway]   = mng_nw_v4_gateway
+				management_interface.save!
+
+				management_napt = Napt.new
+				management_napt[:container_id] = container.id
+				management_napt[:name]         = 'management'
+				management_napt[:sport]        = management_napt.assign_sport( @config )
+				management_napt[:dport]        = '22'
+				management_napt.save!
+
 				update_db_success = true
 				@logger.debug "#{self.class}##{__method__}: " + "update db end"
 
@@ -582,24 +603,20 @@ class LxcManager
 				@logger.debug "#{self.class}##{__method__}: " + "export lxc start"
 				LxcController.exportfs @config, container
 				exportfs_success = true
-				@logger.debug "#{self.class}##{__method__}: " + "export lxcs end"
+				@logger.debug "#{self.class}##{__method__}: " + "export lxc end"
 
-				@logger.debug "#{self.class}##{__method__}: " + "update lxc start"
+				@logger.debug "#{self.class}##{__method__}: " + "update lxc parameters start"
 				LxcController.update_parameters @config, container
-				@logger.debug "#{self.class}##{__method__}: " + "update lxc end"
+				@logger.debug "#{self.class}##{__method__}: " + "update lxc parameters end"
 
-				management_network   = Network.find_by_name( 'management' )
-				mng_nw_v4_gateway    = @config['management_network_bridge_v4_address']
+				@logger.debug "#{self.class}##{__method__}: " + "update lxc interfaces start"
+				LxcController.update_interfaces @config, container
+				@logger.debug "#{self.class}##{__method__}: " + "update lxc interfaces end"
 
-				@logger.debug "#{self.class}##{__method__}: " + "create management interface start"
-				management_interface = self.create_interface management_network.id, container.id, 'management', v4_gateway: mng_nw_v4_gateway, locked: true
-				create_management_interface_success = true
-				@logger.debug "#{self.class}##{__method__}: " + "create management interface end"
-
-				@logger.debug "#{self.class}##{__method__}: " + "create management napt start"
-				management_napt      = self.create_napt container.id, 'management', '22', locked: true
+				@logger.debug "#{self.class}##{__method__}: " + "update iptables start"
+				IptablesController.create @config, management_napt
 				create_management_napt_success = true
-				@logger.debug "#{self.class}##{__method__}: " + "create management napt end"
+				@logger.debug "#{self.class}##{__method__}: " + "update iptables end"
 			end
 			@logger.debug "#{self.class}##{__method__}: " + "transaction end"
 
@@ -609,12 +626,6 @@ class LxcManager
 				@logger.debug "#{self.class}##{__method__}: " + "destroy management napt start"
 				IptablesController.destroy @config, management_napt
 				@logger.debug "#{self.class}##{__method__}: " + "destroy management napt end"
-			end
-
-			if create_management_interface_success
-				@logger.debug "#{self.class}##{__method__}: " + "destroy management interface start"
-				LxcController.update_interfaces @config, container
-				@logger.debug "#{self.class}##{__method__}: " + "destroy management interface end"
 			end
 
 			if exportfs_success
@@ -647,8 +658,19 @@ class LxcManager
 		@logger.debug "#{self.class}##{__method__}: " + "locked: #{locked}"
 
 		container = nil
+
+		napts = Array.new
+		reverse_proxies = Array.new
+
+		processed_napts = Array.new
+		processed_reverse_proxies = Array.new
+
 		lock_success = false
 		update_db_success = false
+		destroy_reverse_proxies_success = false
+		destroy_napts_success = false
+		unexportfs_success = false
+		destroy_zfs_success = false
 
 		begin
 			unless locked
@@ -660,24 +682,12 @@ class LxcManager
 			end
 
 			container = Container.find( id )
+			container.napts.each{ |napt| napts.push napt }
+			container.reverse_proxies.each{ |reverse_proxy| reverse_proxies.push reverse_proxy }
+
 			if container.state == Container::RUNNING
 				raise "Container #{container.name} is running. Cannot destroy"
 			end
-
-			ActiveRecord::Base.transaction do
-				container.destroy!
-				raise ActiveRecord::Rollback
-			end
-
-			container.reverse_proxies.each{ |reverse_proxy|
-				destroy_reverse_proxy reverse_proxy.id, locked: true
-			}
-			container.napts.each{ |napt|
-				destroy_napt napt.id, locked: true
-			}
-			container.interfaces.each{ |interface|
-				destroy_interface interface.id, locked: true
-			}
 
 			@logger.debug "#{self.class}##{__method__}: " + "transaction start"
 			ActiveRecord::Base.transaction do
@@ -686,18 +696,56 @@ class LxcManager
 				update_db_success = true
 				@logger.debug "#{self.class}##{__method__}: " + "update db end"
 
+				@logger.debug "#{self.class}##{__method__}: " + "update nginx config start"
+				reverse_proxies.each{ |reverse_proxy|
+					NginxController.destroy @config, reverse_proxy
+					destroy_reverse_proxies_success = true
+					processed_reverse_proxies.push reverse_proxies
+				}
+				@logger.debug "#{self.class}##{__method__}: " + "update nginx config end"
+
+				@logger.debug "#{self.class}##{__method__}: " + "update iptables start"
+				napts.each{ |napt|
+					IptablesController.destroy @config, napt
+					destroy_napts_success = true
+					processed_napts.push napt
+				}
+				@logger.debug "#{self.class}##{__method__}: " + "update iptables end"
+
 				@logger.debug "#{self.class}##{__method__}: " + "unexport lxc start"
 				LxcController.unexportfs @config, container
+				unexportfs_success = true
 				@logger.debug "#{self.class}##{__method__}: " + "unexport lxc end"
 
 				@logger.debug "#{self.class}##{__method__}: " + "destroy zfs start"
 				ZfsController.destroy @config, container
+				destroy_zfs_success = true
 				@logger.debug "#{self.class}##{__method__}: " + "destroy zfs end"
 			end
 			@logger.debug "#{self.class}##{__method__}: " + "transaction end"
 
 			container
 		rescue
+			if unexportfs_success
+				LxcController.exportfs @config, container
+			end
+
+			if destroy_napts_success
+				@logger.debug "#{self.class}##{__method__}: " + "update iptables start"
+				processed_napts.each{ |napt|
+					IptablesController.create @config, napt
+				}
+				@logger.debug "#{self.class}##{__method__}: " + "update iptables end"
+			end
+
+			if destroy_reverse_proxies_success
+				@logger.debug "#{self.class}##{__method__}: " + "update nginx config start"
+				processed_reverse_proxies.each{ |reverse_proxy|
+					NginxController.create @config, reverse_proxy
+				}
+				@logger.debug "#{self.class}##{__method__}: " + "update nginx config end"
+			end
+
 			raise
 		ensure
 			unless locked
@@ -860,11 +908,6 @@ class LxcManager
 		end
 	end
 
-	def interfaces
-		@logger.info "#{self.class}##{__method__}"
-		Interface.all
-	end
-
 	def create_interface network_id, container_id, name, v4_address=nil, v4_gateway: nil, locked: false
 		@logger.info "#{self.class}##{__method__}"
 		@logger.debug "#{self.class}##{__method__}: " + "network_id: #{network_id}, container_id: #{container_id}, name: #{name}, v4_address: #{v4_address}, v4_gateway: #{v4_gateway}"
@@ -964,11 +1007,6 @@ class LxcManager
 		end
 	end
 
-	def napts
-		@logger.info "#{self.class}##{__method__}"
-		Napt.all
-	end
-
 	def create_napt container_id, name, dport, sport: nil, locked: false
 		@logger.info "#{self.class}##{__method__}"
 		@logger.debug "#{self.class}##{__method__}: " + "container_id: #{container_id}, name: #{name}, dport: #{dport}, sport: #{sport}"
@@ -1060,11 +1098,6 @@ class LxcManager
 				end
 			end
 		end
-	end
-
-	def reverse_proxies
-		@logger.info "#{self.class}##{__method__}"
-		ReverseProxy.all
 	end
 
 	def create_reverse_proxy container_id, name, location, proxy_port, proxy_pass, listen_port: nil, locked: false
@@ -1308,6 +1341,7 @@ class LxcManager
 		end
 	end
 
+	# This method will not work because "zfs rollback" rollbacks config file but db stays latest config state
 	def rollback_snapshot id, locked: false
 		@logger.info "#{self.class}##{__method__}"
 		@logger.debug "#{self.class}##{__method__}: " + "id: #{id}"
@@ -1362,9 +1396,14 @@ class LxcManager
 		container = nil
 		management_interface = nil
 		management_napt = nil
+
 		other_interfaces = Array.new
 		other_napts = Array.new
 		other_reverse_proxies = Array.new
+
+		processed_napts = Array.new
+		processed_reverse_proxies = Array.new
+
 		lock_success = false
 		update_db_success = false
 		create_zfs_success = false
@@ -1386,11 +1425,16 @@ class LxcManager
 
 			@logger.debug "#{self.class}##{__method__}: " + "transaction start"
 			ActiveRecord::Base.transaction do
-				@logger.debug "#{self.class}##{__method__}: " + "update db start"
 				snapshot = Snapshot.find( snapshot_id )
+
+				management_network = Network.find_by_name( 'management' )
+				mng_nw_v4_gateway  = @config['management_network_bridge_v4_address']
+
+				@logger.debug "#{self.class}##{__method__}: " + "update db start"
 				clone = Clone.new
 				clone[:snapshot_id] = snapshot.id
 				clone.save!
+
 				container = Container.new
 				container[:name]        = name
 				container[:hostname]    = hostname
@@ -1399,6 +1443,54 @@ class LxcManager
 				container[:distro_id]   = Snapshot.find( snapshot_id ).container.distro_id
 				container[:state]       = LxcManager::Container::STOPPED
 				container.save!
+
+				management_interface = Interface.new
+				management_interface[:network_id]   = management_network.id
+				management_interface[:container_id] = container.id
+				management_interface[:name]         = 'management'
+				management_interface[:v4_address]   = management_interface.assign_v4_address
+				management_interface[:v4_gateway]   = mng_nw_v4_gateway
+				management_interface.save!
+
+				management_napt = Napt.new
+				management_napt[:container_id] = container.id
+				management_napt[:name]         = 'management'
+				management_napt[:sport]        = management_napt.assign_sport( @config )
+				management_napt[:dport]        = '22'
+				management_napt.save!
+
+				snapshot.container.interfaces.select{ |interface| interface.name != 'management' }.each{ |interface|
+					other_interface = Interface.new
+					other_interface[:network_id]   = interface.network.id
+					other_interface[:container_id] = container.id
+					other_interface[:name]         = interface.name
+					other_interface[:v4_address]   = interface.v4_address
+					other_interface.save!
+					other_interfaces.push other_interface
+				}
+
+				snapshot.container.napts.select{ |napt| napt.name != 'management' }.each{ |napt|
+					other_napt = Napt.new
+					other_napt[:container_id] = container.id
+					other_napt[:name]         = napt.name
+					other_napt[:sport]        = other_napt.assign_sport( @config )
+					other_napt[:dport]        = napt.dport
+					other_napt.save!
+					other_napts.push other_napt
+				}
+
+				snapshot.container.reverse_proxies.each{ |reverse_proxy|
+					other_reverse_proxy = ReverseProxy.new
+					other_reverse_proxy[:container_id] = container.id
+					other_reverse_proxy[:name]         = reverse_proxy.name
+					other_reverse_proxy[:listen_port]  = other_reverse_proxy.assign_listen_port( @config )
+					other_reverse_proxy[:location]     = reverse_proxy.location
+					other_reverse_proxy[:proxy_port]   = reverse_proxy.proxy_port
+					other_reverse_proxy[:proxy_pass]   = reverse_proxy.proxy_pass
+					other_reverse_proxy.save!
+					other_reverse_proxies.push other_reverse_proxy
+				}
+
 				update_db_success = true
 				@logger.debug "#{self.class}##{__method__}: " + "update db end"
 
@@ -1420,39 +1512,26 @@ class LxcManager
 				LxcController.update_interfaces @config, container
 				@logger.debug "#{self.class}##{__method__}: " + "update lxc interfaces end"
 
-				management_network = Network.find_by_name( 'management' )
-				mng_nw_v4_gateway  = @config['management_network_bridge_v4_address']
-
-				@logger.debug "#{self.class}##{__method__}: " + "create management interface start"
-				management_interface = self.create_interface management_network.id, container.id, 'management', v4_gateway: mng_nw_v4_gateway, locked: true
-				create_management_interface_success = true
-				@logger.debug "#{self.class}##{__method__}: " + "create management interface end"
-
-				@logger.debug "#{self.class}##{__method__}: " + "create management napt start"
-				management_napt      = self.create_napt container.id, 'management', '22', locked: true
+				@logger.debug "#{self.class}##{__method__}: " + "update iptables start"
+				IptablesController.create @config, management_napt
 				create_management_napt_success = true
-				@logger.debug "#{self.class}##{__method__}: " + "create management napt end"
+				@logger.debug "#{self.class}##{__method__}: " + "update iptables end"
 
-				@logger.debug "#{self.class}##{__method__}: " + "create other interfaces start"
-				snapshot.container.interfaces.select{ |interface| interface.name != 'management' }.each{ |interface|
-					other_interfaces.push self.create_interface interface.network.id, container.id, interface.name, interface.v4_address, locked: true
-					create_other_interfaces_success = true
-				}
-				@logger.debug "#{self.class}##{__method__}: " + "create other interfaces end"
-
-				@logger.debug "#{self.class}##{__method__}: " + "create other napts start"
-				snapshot.container.napts.select{ |napt| napt.name != 'management' }.each{ |napt|
-					other_napts.push self.create_napt container.id, napt.name, napt.dport, locked: true
+				@logger.debug "#{self.class}##{__method__}: " + "update iptables start"
+				other_napts.each{ |napt|
+					IptablesController.create @config, management_napt
 					create_other_napts_success = true
+					processed_napts.push napt
 				}
-				@logger.debug "#{self.class}##{__method__}: " + "create other napts end"
+				@logger.debug "#{self.class}##{__method__}: " + "update iptables end"
 
-				@logger.debug "#{self.class}##{__method__}: " + "create other reverse_proxies start"
-				snapshot.container.reverse_proxies.each{ |reverse_proxy|
-					other_reverse_proxies.push self.create_reverse_proxy container.id, reverse_proxy.name, reverse_proxy.location, reverse_proxy.proxy_port, reverse_proxy.proxy_pass, locked: true
+				@logger.debug "#{self.class}##{__method__}: " + "update nginx config start"
+				other_reverse_proxies.each{ |reverse_proxy|
+					NginxController.create @config, reverse_proxy
 					create_other_reverse_proxies_success = true
+					processed_reverse_proxies.push reverse_proxy
 				}
-				@logger.debug "#{self.class}##{__method__}: " + "create other reverse_proxies end"
+				@logger.debug "#{self.class}##{__method__}: " + "update nginx config end"
 			end
 			@logger.debug "#{self.class}##{__method__}: " + "transaction end"
 
@@ -1460,7 +1539,7 @@ class LxcManager
 		rescue
 			if create_other_reverse_proxies_success
 				@logger.debug "#{self.class}##{__method__}: " + "destroy other reverse_proxies start"
-				other_reverse_proxies.each{ |reverse_proxy|
+				processed_reverse_proxies.each{ |reverse_proxy|
 					NginxController.destroy @config, reverse_proxy
 				}
 				@logger.debug "#{self.class}##{__method__}: " + "destroy other reverse_proxies end"
@@ -1468,30 +1547,16 @@ class LxcManager
 
 			if create_other_napts_success
 				@logger.debug "#{self.class}##{__method__}: " + "destroy other napts start"
-				other_napts.each{ |napt|
+				processed_napts.each{ |napt|
 					IptablesController.destroy @config, napt
 				}
 				@logger.debug "#{self.class}##{__method__}: " + "destroy other napts end"
-			end
-
-			if create_other_interfaces_success
-				@logger.debug "#{self.class}##{__method__}: " + "destroy other interfaces start"
-				other_interfaces.each{ |interface|
-					LxcController.update_interfaces @config, container
-				}
-				@logger.debug "#{self.class}##{__method__}: " + "destroy other interfaces end"
 			end
 
 			if create_management_napt_success
 				@logger.debug "#{self.class}##{__method__}: " + "destroy management napt start"
 				IptablesController.destroy @config, management_napt
 				@logger.debug "#{self.class}##{__method__}: " + "destroy management napt end"
-			end
-
-			if create_management_interface_success
-				@logger.debug "#{self.class}##{__method__}: " + "destroy management interface start"
-				LxcController.update_interfaces @config, container
-				@logger.debug "#{self.class}##{__method__}: " + "destroy management interface end"
 			end
 
 			if exportfs_success
