@@ -659,8 +659,8 @@ class LxcManager
 
 		container = nil
 
-		napts = Array.new
-		reverse_proxies = Array.new
+		existing_napts = Array.new
+		existing_reverse_proxies = Array.new
 
 		processed_napts = Array.new
 		processed_reverse_proxies = Array.new
@@ -691,8 +691,8 @@ class LxcManager
 
 				management_interface = container.interfaces.find_by_name( 'management' )
 
-				container.napts.each{ |napt| napts.push napt }
-				container.reverse_proxies.each{ |reverse_proxy| reverse_proxies.push reverse_proxy }
+				container.napts.each{ |napt| existing_napts.push napt }
+				container.reverse_proxies.each{ |reverse_proxy| existing_reverse_proxies.push reverse_proxy }
 
 				@logger.debug "#{self.class}##{__method__}: " + "update db start"
 				container.destroy!
@@ -700,7 +700,7 @@ class LxcManager
 				@logger.debug "#{self.class}##{__method__}: " + "update db end"
 
 				@logger.debug "#{self.class}##{__method__}: " + "update nginx config start"
-				reverse_proxies.each{ |reverse_proxy|
+				existing_reverse_proxies.each{ |reverse_proxy|
 					NginxController.destroy @config, reverse_proxy
 					destroy_reverse_proxies_success = true
 					processed_reverse_proxies.push reverse_proxies
@@ -708,7 +708,7 @@ class LxcManager
 				@logger.debug "#{self.class}##{__method__}: " + "update nginx config end"
 
 				@logger.debug "#{self.class}##{__method__}: " + "update iptables start"
-				napts.each{ |napt|
+				existing_napts.each{ |napt|
 					IptablesController.destroy @config, napt, management_interface
 					destroy_napts_success = true
 					processed_napts.push napt
@@ -911,6 +911,11 @@ class LxcManager
 		end
 	end
 
+	def interfaces
+		@logger.info "#{self.class}##{__method__}"
+		Interface.all
+	end
+
 	def create_interface network_id, container_id, name, v4_address=nil, v4_gateway: nil, locked: false
 		@logger.info "#{self.class}##{__method__}"
 		@logger.debug "#{self.class}##{__method__}: " + "network_id: #{network_id}, container_id: #{container_id}, name: #{name}, v4_address: #{v4_address}, v4_gateway: #{v4_gateway}"
@@ -1010,6 +1015,11 @@ class LxcManager
 		end
 	end
 
+	def napts
+		@logger.info "#{self.class}##{__method__}"
+		Napt.all
+	end
+
 	def create_napt container_id, name, dport, sport: nil, locked: false
 		@logger.info "#{self.class}##{__method__}"
 		@logger.debug "#{self.class}##{__method__}: " + "container_id: #{container_id}, name: #{name}, dport: #{dport}, sport: #{sport}"
@@ -1101,6 +1111,11 @@ class LxcManager
 				end
 			end
 		end
+	end
+
+	def reverse_proxies
+		@logger.info "#{self.class}##{__method__}"
+		ReverseProxy.all
 	end
 
 	def create_reverse_proxy container_id, name, location, proxy_port, proxy_pass, listen_port: nil, locked: false
