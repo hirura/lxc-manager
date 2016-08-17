@@ -1916,7 +1916,7 @@ class LxcManager
 					config      = lxc_manager.config
 					container   = lxc_manager.containers.find( params[:id] )
 					server_name = request.env['SERVER_NAME']
-					content_type 'ttl'
+					content_type 'text/turtle'
 					attachment "login_#{params[:id]}.ttl"
 					<<-EOB
 					addr = '#{server_name}'
