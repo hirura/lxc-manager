@@ -4,14 +4,12 @@ require_relative '../lxc-manager'
 
 class LxcManager
 	class IptablesController
-		def self.create config, napt
+		def self.create config, napt, interface
 			logger = LxcManager::Logger.instance
 
 			logger.info "#{self}##{__method__}"
 
 			return if LxcManager::DRY_RUN
-
-			interface = napt.container.interfaces.find_by_name( 'management' )
 
 			logger.debug "#{self}##{__method__}: " + "cli-agent start"
 			CliAgent.open( config['local_shell'] ){ |s|
@@ -23,14 +21,12 @@ class LxcManager
 			logger.debug "#{self}##{__method__}: " + "cli-agent end"
 		end
 
-		def self.destroy config, napt
+		def self.destroy config, napt, interface
 			logger = LxcManager::Logger.instance
 
 			logger.info "#{self}##{__method__}"
 
 			return if LxcManager::DRY_RUN
-
-			interface = napt.container.interfaces.find_by_name( 'management' )
 
 			logger.debug "#{self}##{__method__}: " + "cli-agent start"
 			CliAgent.open( config['local_shell'] ){ |s|

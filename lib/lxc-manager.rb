@@ -614,7 +614,7 @@ class LxcManager
 				@logger.debug "#{self.class}##{__method__}: " + "update lxc interfaces end"
 
 				@logger.debug "#{self.class}##{__method__}: " + "update iptables start"
-				IptablesController.create @config, management_napt
+				IptablesController.create @config, management_napt, management_interface
 				create_management_napt_success = true
 				@logger.debug "#{self.class}##{__method__}: " + "update iptables end"
 			end
@@ -624,7 +624,7 @@ class LxcManager
 		rescue
 			if create_management_napt_success
 				@logger.debug "#{self.class}##{__method__}: " + "destroy management napt start"
-				IptablesController.destroy @config, management_napt
+				IptablesController.destroy @config, management_napt, management_interface
 				@logger.debug "#{self.class}##{__method__}: " + "destroy management napt end"
 			end
 
@@ -681,16 +681,19 @@ class LxcManager
 				end
 			end
 
-			container = Container.find( id )
-			container.napts.each{ |napt| napts.push napt }
-			container.reverse_proxies.each{ |reverse_proxy| reverse_proxies.push reverse_proxy }
-
-			if container.state == Container::RUNNING
-				raise "Container #{container.name} is running. Cannot destroy"
-			end
-
 			@logger.debug "#{self.class}##{__method__}: " + "transaction start"
 			ActiveRecord::Base.transaction do
+				container = Container.find( id )
+
+				if container.state == Container::RUNNING
+					raise "Container #{container.name} is running. Cannot destroy"
+				end
+
+				management_interface = container.interfaces.find_by_name( 'management' )
+
+				container.napts.each{ |napt| napts.push napt }
+				container.reverse_proxies.each{ |reverse_proxy| reverse_proxies.push reverse_proxy }
+
 				@logger.debug "#{self.class}##{__method__}: " + "update db start"
 				container.destroy!
 				update_db_success = true
@@ -706,7 +709,7 @@ class LxcManager
 
 				@logger.debug "#{self.class}##{__method__}: " + "update iptables start"
 				napts.each{ |napt|
-					IptablesController.destroy @config, napt
+					IptablesController.destroy @config, napt, management_interface
 					destroy_napts_success = true
 					processed_napts.push napt
 				}
@@ -733,7 +736,7 @@ class LxcManager
 			if destroy_napts_success
 				@logger.debug "#{self.class}##{__method__}: " + "update iptables start"
 				processed_napts.each{ |napt|
-					IptablesController.create @config, napt
+					IptablesController.create @config, napt, management_interface
 				}
 				@logger.debug "#{self.class}##{__method__}: " + "update iptables end"
 			end
@@ -1037,7 +1040,7 @@ class LxcManager
 				@logger.debug "#{self.class}##{__method__}: " + "update db end"
 
 				@logger.debug "#{self.class}##{__method__}: " + "update iptables start"
-				IptablesController.create @config, napt
+				IptablesController.create @config, napt, napt.container.interfaces.find_by_name( 'management' )
 				@logger.debug "#{self.class}##{__method__}: " + "update iptables end"
 			end
 			@logger.debug "#{self.class}##{__method__}: " + "transaction end"
@@ -1081,7 +1084,7 @@ class LxcManager
 				@logger.debug "#{self.class}##{__method__}: " + "update db end"
 
 				@logger.debug "#{self.class}##{__method__}: " + "update iptables start"
-				IptablesController.destroy @config, napt
+				IptablesController.destroy @config, napt, napt.container.interfaces.find_by_name( 'management' )
 				@logger.debug "#{self.class}##{__method__}: " + "update iptables end"
 			end
 			@logger.debug "#{self.class}##{__method__}: " + "transaction end"
@@ -1513,13 +1516,13 @@ class LxcManager
 				@logger.debug "#{self.class}##{__method__}: " + "update lxc interfaces end"
 
 				@logger.debug "#{self.class}##{__method__}: " + "update iptables start"
-				IptablesController.create @config, management_napt
+				IptablesController.create @config, management_napt, management_interface
 				create_management_napt_success = true
 				@logger.debug "#{self.class}##{__method__}: " + "update iptables end"
 
 				@logger.debug "#{self.class}##{__method__}: " + "update iptables start"
 				other_napts.each{ |napt|
-					IptablesController.create @config, management_napt
+					IptablesController.create @config, management_napt, management_interface
 					create_other_napts_success = true
 					processed_napts.push napt
 				}
@@ -1548,14 +1551,14 @@ class LxcManager
 			if create_other_napts_success
 				@logger.debug "#{self.class}##{__method__}: " + "destroy other napts start"
 				processed_napts.each{ |napt|
-					IptablesController.destroy @config, napt
+					IptablesController.destroy @config, napt, management_interface
 				}
 				@logger.debug "#{self.class}##{__method__}: " + "destroy other napts end"
 			end
 
 			if create_management_napt_success
 				@logger.debug "#{self.class}##{__method__}: " + "destroy management napt start"
-				IptablesController.destroy @config, management_napt
+				IptablesController.destroy @config, management_napt, management_interface
 				@logger.debug "#{self.class}##{__method__}: " + "destroy management napt end"
 			end
 
