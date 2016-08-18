@@ -8,7 +8,7 @@
 		<label for="network_id" class="control-label">Network</label>
 		<select size="1" class="form-control" id="network_id" name="network_id">
 			<% networks.each{ |network| %>
-				<% selected = if network_id == network.id then "selected" else "" end rescue "" %>
+				<% selected = if network_id.to_i == network.id then "selected" else "" end rescue "" %>
 				<option value="<%= network.id %>" <%= selected %>><%= network.name %> (<%= network.v4_address %>/<%=network.v4_prefix %>)</option>
 			<% } %>
 		</select>
