@@ -1151,9 +1151,9 @@ class LxcManager
 				if session[:user_id]
 					lxc_manager = LxcManager.new
 					logger.info "requested by #{lxc_manager.users.find( session[:user_id] ).name}"
-					container = lxc_manager.napts.find( params[:id] ).container
-					lxc_manager.destroy_napt params[:id]
-					lxc_manager.create_napt container.id, params[:name], params[:dport]
+					napt = lxc_manager.napts.find( params[:id] )
+					container = napt.container
+					lxc_manager.edit_napt params[:id], container.id, params[:name], params[:dport], sport: napt.sport
 					redirect "/container_detail/#{container.id}"
 				else
 					logger.info 'No session[:user_id]: Redirect to /login'

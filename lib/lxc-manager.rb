@@ -1140,8 +1140,9 @@ class LxcManager
 			end
 			@logger.debug "#{self.class}##{__method__}: " + "transaction start"
 			ActiveRecord::Base.transaction do
-				@logger.debug "#{self.class}##{__method__}: " + "update db start"
 				napt = Napt.find( id )
+
+				@logger.debug "#{self.class}##{__method__}: " + "update db start"
 				napt.destroy!
 				update_db_success = true
 				@logger.debug "#{self.class}##{__method__}: " + "update db end"
@@ -1154,6 +1155,69 @@ class LxcManager
 
 			napt
 		rescue
+			raise
+		ensure
+			unless locked
+				if lock_success
+					@logger.debug "#{self.class}##{__method__}: " + "unlock start"
+					@@m.unlock
+					@logger.debug "#{self.class}##{__method__}: " + "unlock end"
+				end
+			end
+		end
+	end
+
+	def edit_napt id, container_id, name, dport, sport: nil, locked: false
+		@logger.info "#{self.class}##{__method__}"
+		@logger.debug "#{self.class}##{__method__}: " + "id: #{id}, container_id: #{container_id}, name: #{name}, dport: #{dport}, sport: #{sport}"
+		@logger.debug "#{self.class}##{__method__}: " + "locked: #{locked}"
+
+		napt = nil
+		lock_success = false
+		napt_destroy_success = false
+		update_db_success = false
+
+		begin
+			unless locked
+				lock_success = @@m.try_lock
+				@logger.debug "#{self.class}##{__method__}: " + "try_lock: #{lock_success}"
+				unless lock_success
+					raise "Couldn't get lock. Please try again later."
+				end
+			end
+
+			@logger.debug "#{self.class}##{__method__}: " + "transaction start"
+			ActiveRecord::Base.transaction do
+				napt = Napt.find( id )
+
+				@logger.debug "#{self.class}##{__method__}: " + "update iptables start"
+				IptablesController.destroy @config, napt, napt.container.interfaces.find_by_name( 'management' )
+				napt_destroy_success = true
+				@logger.debug "#{self.class}##{__method__}: " + "update iptables end"
+
+				@logger.debug "#{self.class}##{__method__}: " + "update db start"
+				napt[:container_id] = container_id
+				napt[:name]         = name
+				napt[:sport]        = sport || napt.assign_sport( @config )
+				napt[:dport]        = dport
+				napt.save!
+				update_db_success = true
+				@logger.debug "#{self.class}##{__method__}: " + "update db end"
+
+				@logger.debug "#{self.class}##{__method__}: " + "update iptables start"
+				IptablesController.create @config, napt, napt.container.interfaces.find_by_name( 'management' )
+				@logger.debug "#{self.class}##{__method__}: " + "update iptables end"
+			end
+			@logger.debug "#{self.class}##{__method__}: " + "transaction end"
+
+			napt
+		rescue
+			if napt_destroy_success
+				@logger.debug "#{self.class}##{__method__}: " + "update iptables start"
+				IptablesController.create @config, napt, napt.container.interfaces.find_by_name( 'management' )
+				@logger.debug "#{self.class}##{__method__}: " + "update iptables end"
+			end
+
 			raise
 		ensure
 			unless locked
