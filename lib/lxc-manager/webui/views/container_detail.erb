@@ -55,6 +55,8 @@
 				<th>IPv4 Address</th>
 				<th>IPv4 Gateway</th>
 				<th>Action</th>
+				<th>Network Name</th>
+				<th>IPv4 Address/Prefix</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -75,6 +77,8 @@
 							</button>
 						</div>
 					</td>
+					<td><%= interface.network.name %></td>
+					<td><%= interface.network.v4_address %>/<%= interface.network.v4_prefix %></td>
 				</tr>
 			<% } %>
 		</tbody>
