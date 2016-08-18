@@ -28,9 +28,9 @@ class LxcManager
 		validates :description, presence: true, format: { with: /\A.*\z/ }
 		validates :state,       presence: true, inclusion: { in: [RUNNING, STOPPED, UNKNOWN] }
 
-		validate :state_cannot_be_running_because_same_address_is_already_active
+		validate :state_cannot_be_running_because_same_address_is_already_active_in_network
 
-		def state_cannot_be_running_because_same_address_is_already_in_use
+		def state_cannot_be_running_because_same_address_is_already_active_in_network
 			conflict_interfaces = interfaces.select{ |interface|
 				v4_address = interface.v4_address
 				network = interface.network
