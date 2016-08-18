@@ -1353,7 +1353,7 @@ class LxcManager
 
 			@logger.debug "#{self.class}##{__method__}: " + "transaction start"
 			ActiveRecord::Base.transaction do
-				reverse_proxy = ReverseProxy.new
+				reverse_proxy = ReverseProxy.find( id )
 
 				@logger.debug "#{self.class}##{__method__}: " + "update db start"
 				reverse_proxy[:container_id] = container_id
