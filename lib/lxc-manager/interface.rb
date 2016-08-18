@@ -9,8 +9,6 @@ require 'acts_as_paranoid'
 class LxcManager
 	class Interface < ActiveRecord::Base
 		acts_as_paranoid
-		validates_as_paranoid
-		validates_uniqueness_of_without_deleted :name
 
 		belongs_to :network
 		belongs_to :container

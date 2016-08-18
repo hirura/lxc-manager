@@ -11,8 +11,6 @@ class LxcManager
 		UNKNOWN ||= 'unknown'
 
 		acts_as_paranoid
-		validates_as_paranoid
-		validates_uniqueness_of_without_deleted :name
 
 		belongs_to :clone, dependent: :destroy
 		belongs_to :host

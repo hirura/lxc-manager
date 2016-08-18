@@ -7,12 +7,10 @@ require 'acts_as_paranoid'
 class LxcManager
 	class Distro < ActiveRecord::Base
 		acts_as_paranoid
-		validates_as_paranoid
-		validates_uniqueness_of_without_deleted :name
 
 		has_many :containers, dependent: :restrict_with_error
 
-		validates :name,     presence: true, format: { with: /\A[a-zA-Z][a-zA-Z0-9 @._-]{,99}\z/ }
+		validates :name,     presence: true, uniqueness: { conditions: -> { where( deleted_at: nil ) } }, format: { with: /\A[a-zA-Z][a-zA-Z0-9 @._-]{,99}\z/ }
 		validates :iso,      presence: true, format: { with: /\A[a-zA-Z0-9][a-zA-Z0-9@._-]{,95}\.iso\z/ }
 		validates :template, presence: true, format: { with: /\A[a-zA-Z0-9][a-zA-Z0-9@._-]{,99}\z/ }
 

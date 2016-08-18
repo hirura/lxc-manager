@@ -7,14 +7,12 @@ require 'acts_as_paranoid'
 class LxcManager
 	class Napt < ActiveRecord::Base
 		acts_as_paranoid
-		validates_as_paranoid
-		validates_uniqueness_of_without_deleted :sport
 
 		belongs_to :container
 
 		validates :container_id, presence: true
-		validates :name,         presence: true, format: { with: /\A[a-zA-Z][a-zA-Z0-9 @._-]{,99}\z/ }
-		validates :sport,        presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 65535 }
+		validates :name,         presence: true, uniqueness: { scope: [:container_id], conditions: -> { where( deleted_at: nil ) } }, format: { with: /\A[a-zA-Z][a-zA-Z0-9 @._-]{,99}\z/ }
+		validates :sport,        presence: true, uniqueness: { conditions: -> { where( deleted_at: nil ) } }, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 65535 }
 		validates :dport,        presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 65535 }
 
 		def assign_sport config
