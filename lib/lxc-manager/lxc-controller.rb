@@ -89,6 +89,11 @@ class LxcManager
 						raise "Failed: Remove interface: couldn't remove #{pool_lxc_path}/rootfs/etc/sysconfig/network-scripts/ifcfg-eth0"
 					end
 
+					ret = s.run "echo -n | tee #{pool_lxc_path}/rootfs/etc/resolv.conf"
+					if s.exit_status != 0
+						raise "Failed: Wipe nameservers: couldn't wipe nameservers from #{pool_lxc_path}/rootfs/etc/resolv.conf"
+					end
+
 					ret = s.run "echo 'function shutdown () { echo Sorry, shutdown command is not allowed.; }' | tee -a #{pool_lxc_path}/rootfs/root/.bashrc"
 					if s.exit_status != 0
 						raise "Failed: Edit /root/.bashrc: couldn't edit #{pool_lxc_path}/config/root/.bashrc"
