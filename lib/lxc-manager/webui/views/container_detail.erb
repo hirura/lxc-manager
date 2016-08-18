@@ -132,6 +132,7 @@
 		<thead>
 			<tr>
 				<th>Name</th>
+				<th>Listen Port</th>
 				<th>Location</th>
 				<th>Proxy Port</th>
 				<th>Proxy Pass</th>
@@ -142,6 +143,7 @@
 			<% container.reverse_proxies.each.with_index{ |reverse_proxy, idx| %>
 				<tr>
 					<td><a href="<%= "http://#{server_name}:#{reverse_proxy.listen_port}#{reverse_proxy.location}" %>"><%= reverse_proxy.name %></a></td>
+					<td><%= reverse_proxy.listen_port %></td>
 					<td><%= reverse_proxy.location %></td>
 					<td><%= reverse_proxy.proxy_port %></td>
 					<td><%= reverse_proxy.proxy_pass %></td>
