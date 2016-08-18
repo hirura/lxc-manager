@@ -979,8 +979,7 @@ class LxcManager
 					lxc_manager = LxcManager.new
 					logger.info "requested by #{lxc_manager.users.find( session[:user_id] ).name}"
 					container = lxc_manager.interfaces.find( params[:id] ).container
-					lxc_manager.destroy_interface params[:id]
-					lxc_manager.create_interface params[:network_id], container.id, params[:name], params[:v4_address]
+					lxc_manager.edit_interface params[:id], params[:network_id], container.id, params[:name], params[:v4_address]
 					redirect "/container_detail/#{container.id}"
 				else
 					logger.info 'No session[:user_id]: Redirect to /login'

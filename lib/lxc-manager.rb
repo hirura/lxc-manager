@@ -1015,6 +1015,59 @@ class LxcManager
 		end
 	end
 
+	def edit_interface id, network_id, container_id, name, v4_address=nil, v4_gateway: nil, locked: false
+		@logger.info "#{self.class}##{__method__}"
+		@logger.debug "#{self.class}##{__method__}: " + "id: #{id}, network_id: #{network_id}, container_id: #{container_id}, name: #{name}, v4_address: #{v4_address}, v4_gateway: #{v4_gateway}"
+		@logger.debug "#{self.class}##{__method__}: " + "locked: #{locked}"
+
+		interface = nil
+		lock_success = false
+		update_db_success = false
+
+		begin
+			unless locked
+				lock_success = @@m.try_lock
+				@logger.debug "#{self.class}##{__method__}: " + "try_lock: #{lock_success}"
+				unless lock_success
+					raise "Couldn't get lock. Please try again later."
+				end
+			end
+
+			@logger.debug "#{self.class}##{__method__}: " + "transaction start"
+			ActiveRecord::Base.transaction do
+				@logger.debug "#{self.class}##{__method__}: " + "update db start"
+				interface = Interface.find( id )
+				interface[:network_id]   = network_id
+				interface[:container_id] = container_id
+				interface[:name]         = name
+				interface[:v4_address]   = v4_address || interface.assign_v4_address
+				if v4_gateway
+					interface[:v4_gateway] = v4_gateway
+				end
+				interface.save!
+				update_db_success = true
+				@logger.debug "#{self.class}##{__method__}: " + "update db end"
+
+				@logger.debug "#{self.class}##{__method__}: " + "update lxc start"
+				LxcController.update_interfaces @config, interface.container
+				@logger.debug "#{self.class}##{__method__}: " + "update lxc end"
+			end
+			@logger.debug "#{self.class}##{__method__}: " + "transaction end"
+
+			interface
+		rescue
+			raise
+		ensure
+			unless locked
+				if lock_success
+					@logger.debug "#{self.class}##{__method__}: " + "unlock start"
+					@@m.unlock
+					@logger.debug "#{self.class}##{__method__}: " + "unlock end"
+				end
+			end
+		end
+	end
+
 	def napts
 		@logger.info "#{self.class}##{__method__}"
 		Napt.all
