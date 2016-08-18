@@ -30,9 +30,6 @@
 												<button type="button" class="btn btn-default" onClick="create_snapshot(<%= container.id %>);">
 													<span class="glyphicon glyphicon-camera"></span> Take Snapshot
 												</button>
-												<button type="button" class="btn btn-default" onClick="destroy_container(<%= container.id %>);">
-													<span class="glyphicon glyphicon-remove-sign"></span> Destroy
-												</button>
 											</div>
 										</td>
 									<% end %>
@@ -69,9 +66,6 @@
 											<button type="button" class="btn btn-default" onClick="promote(<%= clone.container.id %>);">
 												<span class="glyphicon glyphicon-random"></span> Promote
 											</button>
-											<button type="button" class="btn btn-default" onClick="destroy_container(<%= clone.container.id %>);">
-												<span class="glyphicon glyphicon-remove-sign"></span> Destroy
-											</button>
 										</div>
 									</td>
 								</tr>
@@ -86,9 +80,6 @@
 										<div class="btn-group btn-group-xs" role="group" aria-label="...">
 											<button type="button" class="btn btn-default" onClick="create_snapshot(<%= container.id %>);">
 												<span class="glyphicon glyphicon-camera"></span> Take Snapshot
-											</button>
-											<button type="button" class="btn btn-default" onClick="destroy_container(<%= container.id %>);">
-												<span class="glyphicon glyphicon-remove-sign"></span> Destroy
 											</button>
 										</div>
 									</td>
@@ -130,9 +121,6 @@
 							<div class="btn-group btn-group-xs" role="group" aria-label="...">
 								<button type="button" class="btn btn-default" onClick="create_snapshot(<%= container.id %>);">
 									<span class="glyphicon glyphicon-camera"></span> Take Snapshot
-								</button>
-								<button type="button" class="btn btn-default" onClick="destroy_container(<%= container.id %>);">
-									<span class="glyphicon glyphicon-remove-sign"></span> Destroy
 								</button>
 							</div>
 						</td>
