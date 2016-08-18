@@ -1325,9 +1325,9 @@ class LxcManager
 				if session[:user_id]
 					lxc_manager = LxcManager.new
 					logger.info "requested by #{lxc_manager.users.find( session[:user_id] ).name}"
-					container = lxc_manager.reverse_proxies.find( params[:id] ).container
-					lxc_manager.destroy_reverse_proxy params[:id]
-					lxc_manager.create_reverse_proxy container.id, params[:name], params[:location], params[:proxy_port], params[:proxy_pass]
+					reverse_proxy = lxc_manager.reverse_proxies.find( params[:id] )
+					container = reverse_proxy.container
+					lxc_manager.edit_reverse_proxy params[:id], container.id, params[:name], params[:location], params[:proxy_port], params[:proxy_pass], listen_port: reverse_proxy.listen_port
 					redirect "/container_detail/#{container.id}"
 				else
 					logger.info 'No session[:user_id]: Redirect to /login'

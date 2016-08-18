@@ -1333,6 +1333,59 @@ class LxcManager
 		end
 	end
 
+	def edit_reverse_proxy id, container_id, name, location, proxy_port, proxy_pass, listen_port: nil, locked: false
+		@logger.info "#{self.class}##{__method__}"
+		@logger.debug "#{self.class}##{__method__}: " + "id: #{id}, container_id: #{container_id}, name: #{name}, location: #{location}, proxy_port: #{proxy_port}, proxy_pass: #{proxy_pass}, listen_port: #{listen_port}"
+		@logger.debug "#{self.class}##{__method__}: " + "locked: #{locked}"
+
+		reverse_proxy = nil
+		lock_success = false
+		update_db_success = false
+
+		begin
+			unless locked
+				lock_success = @@m.try_lock
+				@logger.debug "#{self.class}##{__method__}: " + "try_lock: #{lock_success}"
+				unless lock_success
+					raise "Couldn't get lock. Please try again later."
+				end
+			end
+
+			@logger.debug "#{self.class}##{__method__}: " + "transaction start"
+			ActiveRecord::Base.transaction do
+				reverse_proxy = ReverseProxy.new
+
+				@logger.debug "#{self.class}##{__method__}: " + "update db start"
+				reverse_proxy[:container_id] = container_id
+				reverse_proxy[:name]         = name
+				reverse_proxy[:listen_port]  = listen_port || reverse_proxy.assign_listen_port( @config )
+				reverse_proxy[:location]     = location
+				reverse_proxy[:proxy_port]   = proxy_port
+				reverse_proxy[:proxy_pass]   = proxy_pass
+				reverse_proxy.save!
+				update_db_success = true
+				@logger.debug "#{self.class}##{__method__}: " + "update db end"
+
+				@logger.debug "#{self.class}##{__method__}: " + "update nginx config start"
+				NginxController.replace @config, reverse_proxy
+				@logger.debug "#{self.class}##{__method__}: " + "update nginx config end"
+			end
+			@logger.debug "#{self.class}##{__method__}: " + "transaction end"
+
+			reverse_proxy
+		rescue
+			raise
+		ensure
+			unless locked
+				if lock_success
+					@logger.debug "#{self.class}##{__method__}: " + "unlock start"
+					@@m.unlock
+					@logger.debug "#{self.class}##{__method__}: " + "unlock end"
+				end
+			end
+		end
+	end
+
 	def snapshots
 		@logger.info "#{self.class}##{__method__}"
 		Snapshot.all
