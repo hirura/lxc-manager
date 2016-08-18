@@ -84,78 +84,24 @@ class LxcManager
 						raise "Failed: Edit config: couldn't edit #{pool_lxc_path}/config"
 					end
 
-					#ret = s.run "rm -f #{pool_lxc_path}/rootfs/sbin/shutdown"
-					#if s.exit_status != 0
-						#raise "Failed: Remove interface: couldn't remove #{pool_lxc_path}/rootfs/sbin/shutdown"
-					#end
-
 					ret = s.run "rm -f #{pool_lxc_path}/rootfs/etc/sysconfig/network-scripts/ifcfg-eth0"
 					if s.exit_status != 0
 						raise "Failed: Remove interface: couldn't remove #{pool_lxc_path}/rootfs/etc/sysconfig/network-scripts/ifcfg-eth0"
 					end
 
+					ret = s.run "echo 'function shutdown () { echo Sorry, shutdown command is not allowed.; }' | tee -a #{pool_lxc_path}/rootfs/root/.bashrc"
+					if s.exit_status != 0
+						raise "Failed: Edit /root/.bashrc: couldn't edit #{pool_lxc_path}/config/root/.bashrc"
+					end
+
+					ret = s.run "echo 'function reboot () { echo Sorry, reboot command is not allowed.; }' | tee -a #{pool_lxc_path}/rootfs/root/.bashrc"
+					if s.exit_status != 0
+						raise "Failed: Edit /root/.bashrc: couldn't edit #{pool_lxc_path}/config/root/.bashrc"
+					end
+
 					ret = s.run "echo 'rootroot' | chroot #{pool_lxc_path}/rootfs/ passwd --stdin root"
 					if s.exit_status != 0
 						raise "Failed: Change Password: couldn't change root's password"
-					end
-
-					hrr_kernel_shmmax = Array.new
-					hrr_kernel_shmmax.push "cat <<'__EOB__' | tee #{pool_lxc_path}/rootfs/etc/init.d/hrr-kernel-shmmax"
-					hrr_kernel_shmmax.push "#!/bin/sh"
-					hrr_kernel_shmmax.push "#"
-					hrr_kernel_shmmax.push "# chkconfig: 345 84 16"
-					hrr_kernel_shmmax.push "# description: set kernel.shmmax"
-					hrr_kernel_shmmax.push ""
-					hrr_kernel_shmmax.push "start() {"
-					hrr_kernel_shmmax.push "    mount -t proc -o remount,rw proc /proc/sys"
-					hrr_kernel_shmmax.push "    sysctl kernel.shmmax=68719476736"
-					hrr_kernel_shmmax.push "    sysctl kernel.shmall=4294967296"
-					hrr_kernel_shmmax.push "    sysctl kernel.shmmni=4096"
-					hrr_kernel_shmmax.push "    mount -t proc -o remount,ro proc /proc/sys"
-					hrr_kernel_shmmax.push "    return 0"
-					hrr_kernel_shmmax.push "}"
-					hrr_kernel_shmmax.push ""
-					hrr_kernel_shmmax.push "stop() {"
-					hrr_kernel_shmmax.push "    return 0"
-					hrr_kernel_shmmax.push "}"
-					hrr_kernel_shmmax.push ""
-					hrr_kernel_shmmax.push "case \"$1\" in"
-					hrr_kernel_shmmax.push "    start)"
-					hrr_kernel_shmmax.push "        start"
-					hrr_kernel_shmmax.push "        ;;"
-					hrr_kernel_shmmax.push "    stop)"
-					hrr_kernel_shmmax.push "        stop"
-					hrr_kernel_shmmax.push "        ;;"
-					hrr_kernel_shmmax.push "    *)"
-					hrr_kernel_shmmax.push "        echo $\"Usage: $0 {start|stop}\""
-					hrr_kernel_shmmax.push "        exit 2"
-					hrr_kernel_shmmax.push "esac"
-					hrr_kernel_shmmax.push ""
-					hrr_kernel_shmmax.push "exit 0"
-					hrr_kernel_shmmax.push "__EOB__"
-					ret = s.run hrr_kernel_shmmax.join("\n")
-					if s.exit_status != 0
-						raise "Failed: Add Script: couldn't put modifing sysctl parameter script"
-					end
-
-					ret = s.run "chmod +x #{pool_lxc_path}/rootfs/etc/init.d/hrr-kernel-shmmax"
-					if s.exit_status != 0
-						raise "Failed: chmod: couldn't make script executable"
-					end
-
-					ret = s.run "chroot #{pool_lxc_path}/rootfs/ /sbin/chkconfig --add hrr-kernel-shmmax"
-					if s.exit_status != 0
-						raise "Failed: chkconfig --add: couldn't add script by chkconfig"
-					end
-
-					ret = s.run "chroot #{pool_lxc_path}/rootfs/ /sbin/chkconfig hrr-kernel-shmmax on"
-					if s.exit_status != 0
-						raise "Failed: chkconfig on: couldn't enablize script by chkconfig"
-					end
-
-					ret = s.run "chroot #{pool_lxc_path}/rootfs/ /sbin/chkconfig --list hrr-kernel-shmmax"
-					if s.exit_status != 0
-						raise "Failed: chkconfig --list: couldn't list script by chkconfig"
 					end
 				rescue => e
 					raise
