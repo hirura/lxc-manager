@@ -24,7 +24,7 @@ class LxcManager
 			nginx_config += "    proxy_pass http://#{reverse_proxy.container.interfaces.find_by_name( 'management' ).v4_address}:#{reverse_proxy.proxy_port}#{reverse_proxy.proxy_pass};"
 			nginx_config += "  }"
 			nginx_config += "}"
-			logger.debug "#{self}##{__method__}: " + "create nginx conf file:\n#{nginx_config}"
+			logger.debug "#{self}##{__method__}: " + "create nginx conf file: #{nginx_config}"
 			File.open( reverse_proxy_config_file, 'w' ){ |fo|
 				fo.puts nginx_config
 			}
@@ -38,10 +38,11 @@ class LxcManager
 					if s.exit_status == 0
 						reload_nginx_success = true
 					else
-						raise "Failed: reload nginx"
+						raise "Failed: reload nginx: #{ret}"
 					end
 				rescue
 					FileUtils.rm( reverse_proxy_config_file, force: true )
+
 					raise
 				end
 			}
@@ -57,12 +58,30 @@ class LxcManager
 
 			reverse_proxy_config_file = "#{config['nginx_conf_dir']}/#{reverse_proxy.id}.conf"
 
+			nginx_config = File.open( reverse_proxy_config_file ).read rescue ''
+
 			logger.debug "#{self}##{__method__}: " + "remove #{reverse_proxy_config_file}"
 			FileUtils.rm( reverse_proxy_config_file, force: true )
 
 			logger.debug "#{self}##{__method__}: " + "cli-agent start"
 			CliAgent.open( config['local_shell'] ){ |s|
-				ret = s.run "systemctl reload nginx"
+				reload_nginx_success = false
+
+				begin
+					ret = s.run "systemctl reload nginx"
+					if s.exit_status == 0
+						reload_nginx_success = true
+					else
+						raise "Failed: reload nginx: #{ret}"
+					end
+				rescue
+					logger.debug "#{self}##{__method__}: " + "create nginx conf file: #{nginx_config}"
+					File.open( reverse_proxy_config_file, 'w' ){ |fo|
+						fo.puts nginx_config
+					}
+
+					raise
+				end
 			}
 			logger.debug "#{self}##{__method__}: " + "cli-agent end"
 		end
@@ -90,7 +109,7 @@ class LxcManager
 				nginx_config += "    proxy_pass http://#{reverse_proxy.container.interfaces.find_by_name( 'management' ).v4_address}:#{reverse_proxy.proxy_port}#{reverse_proxy.proxy_pass};"
 				nginx_config += "  }"
 				nginx_config += "}"
-				logger.debug "#{self}##{__method__}: " + "create nginx conf file:\n#{nginx_config}"
+				logger.debug "#{self}##{__method__}: " + "create nginx conf file: #{nginx_config}"
 				File.open( reverse_proxy_config_file, 'w' ){ |fo|
 					fo.puts nginx_config
 				}
@@ -110,7 +129,7 @@ class LxcManager
 					if s.exit_status == 0
 						reload_nginx_success = true
 					else
-						raise "Failed: reload nginx"
+						raise "Failed: reload nginx: #{ret}"
 					end
 
 					logger.debug "#{self}##{__method__}: " + "remove #{reverse_proxy_config_backup_file}"
