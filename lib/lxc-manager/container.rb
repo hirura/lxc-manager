@@ -25,7 +25,7 @@ class LxcManager
 
 		has_many :networks, through: :interfaces
 
-		validates :name,        presence: true, format: { with: /\A[a-zA-Z][a-zA-Z0-9 @._-]{,99}\z/ }
+		validates :name,        presence: true, uniqueness: { conditions: -> { where( deleted_at: nil ) } }, format: { with: /\A[a-zA-Z][a-zA-Z0-9 @._-]{,99}\z/ }
 		validates :hostname,    presence: true, format: { with: /\A[a-z][a-z0-9-]{,61}[a-z0-9]\z/ }
 		validates :description, presence: true, format: { with: /\A.*\z/ }
 		validates :state,       presence: true
