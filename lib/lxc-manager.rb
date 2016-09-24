@@ -1391,7 +1391,7 @@ class LxcManager
 
 	def reverse_proxy_substitutes
 		@logger.info "#{self.class}##{__method__}"
-		ReverseProxySubstitutes.all
+		ReverseProxySubstitute.all
 	end
 
 	def create_reverse_proxy_substitute reverse_proxy_id, name, pattern, replacement, locked: false
