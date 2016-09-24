@@ -1415,7 +1415,7 @@ class LxcManager
 			@logger.debug "#{self.class}##{__method__}: " + "transaction start"
 			ActiveRecord::Base.transaction do
 				@logger.debug "#{self.class}##{__method__}: " + "update db start"
-				reverse_proxy_substitute = ReverseProxy.new
+				reverse_proxy_substitute = ReverseProxySubstitute.new
 				reverse_proxy_substitute[:reverse_proxy_id] = reverse_proxy_id
 				reverse_proxy_substitute[:name]             = name
 				reverse_proxy_substitute[:pattern]          = pattern
