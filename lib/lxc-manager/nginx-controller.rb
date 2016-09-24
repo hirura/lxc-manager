@@ -16,14 +16,22 @@ class LxcManager
 			reverse_proxy_config_file = "#{config['nginx_conf_dir']}/#{reverse_proxy.id}.conf"
 
 			nginx_config = ""
-			nginx_config += "server {"
-			nginx_config += "  listen #{reverse_proxy.listen_port};"
-			nginx_config += "  server_name _;"
-			nginx_config += "  proxy_set_header Host $http_host;"
-			nginx_config += "  location #{reverse_proxy.location} {"
-			nginx_config += "    proxy_pass http://#{reverse_proxy.container.interfaces.find_by_name( 'management' ).v4_address}:#{reverse_proxy.proxy_port}#{reverse_proxy.proxy_pass};"
-			nginx_config += "  }"
-			nginx_config += "}"
+			nginx_config += "server {\n"
+			nginx_config += "  listen #{reverse_proxy.listen_port};\n"
+			nginx_config += "  server_name _;\n"
+			nginx_config += "  proxy_set_header Host $http_host;\n"
+			nginx_config += "  location #{reverse_proxy.location} {\n"
+			nginx_config += "    proxy_pass http://#{reverse_proxy.container.interfaces.find_by_name( 'management' ).v4_address}:#{reverse_proxy.proxy_port}#{reverse_proxy.proxy_pass};\n"
+			if reverse_proxy.reverse_proxy_substitutes.any?
+				nginx_config += "    proxy_set_header Accept-Encoding '';\n"
+				nginx_config += "    sub_filter_types '*';\n"
+				nginx_config += "    sub_filter_once off;\n"
+				reverse_proxy.reverse_proxy_substitutes.each{ |reverse_proxy_substitute|
+					nginx_config += "    sub_filter '#{reverse_proxy_substitute.pattern}' '#{reverse_proxy_substitute.replacement}';\n"
+				}
+			end
+			nginx_config += "  }\n"
+			nginx_config += "}\n"
 			logger.debug "#{self}##{__method__}: " + "create nginx conf file: #{nginx_config}"
 			File.open( reverse_proxy_config_file, 'w' ){ |fo|
 				fo.puts nginx_config
@@ -101,14 +109,22 @@ class LxcManager
 
 			begin
 				nginx_config = ""
-				nginx_config += "server {"
-				nginx_config += "  listen #{reverse_proxy.listen_port};"
-				nginx_config += "  server_name _;"
-				nginx_config += "  proxy_set_header Host $http_host;"
-				nginx_config += "  location #{reverse_proxy.location} {"
-				nginx_config += "    proxy_pass http://#{reverse_proxy.container.interfaces.find_by_name( 'management' ).v4_address}:#{reverse_proxy.proxy_port}#{reverse_proxy.proxy_pass};"
-				nginx_config += "  }"
-				nginx_config += "}"
+				nginx_config += "server {\n"
+				nginx_config += "  listen #{reverse_proxy.listen_port};\n"
+				nginx_config += "  server_name _;\n"
+				nginx_config += "  proxy_set_header Host $http_host;\n"
+				nginx_config += "  location #{reverse_proxy.location} {\n"
+				nginx_config += "    proxy_pass http://#{reverse_proxy.container.interfaces.find_by_name( 'management' ).v4_address}:#{reverse_proxy.proxy_port}#{reverse_proxy.proxy_pass};\n"
+				if reverse_proxy.reverse_proxy_substitutes.any?
+					nginx_config += "    proxy_set_header Accept-Encoding '';\n"
+					nginx_config += "    sub_filter_types '*';\n"
+					nginx_config += "    sub_filter_once off;\n"
+					reverse_proxy.reverse_proxy_substitutes.each{ |reverse_proxy_substitute|
+						nginx_config += "    sub_filter '#{reverse_proxy_substitute.pattern}' '#{reverse_proxy_substitute.replacement}';\n"
+					}
+				end
+				nginx_config += "  }\n"
+				nginx_config += "}\n"
 				logger.debug "#{self}##{__method__}: " + "create nginx conf file: #{nginx_config}"
 				File.open( reverse_proxy_config_file, 'w' ){ |fo|
 					fo.puts nginx_config

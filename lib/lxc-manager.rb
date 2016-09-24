@@ -17,6 +17,7 @@ require_relative 'lxc-manager/container'
 require_relative 'lxc-manager/interface'
 require_relative 'lxc-manager/napt'
 require_relative 'lxc-manager/reverse_proxy'
+require_relative 'lxc-manager/reverse_proxy_substitute'
 require_relative 'lxc-manager/snapshot'
 require_relative 'lxc-manager/clone'
 
@@ -1388,6 +1389,158 @@ class LxcManager
 		end
 	end
 
+	def reverse_proxy_substitutes
+		@logger.info "#{self.class}##{__method__}"
+		ReverseProxySubstitutes.all
+	end
+
+	def create_reverse_proxy_substitute reverse_proxy_id, name, pattern, replacement, locked: false
+		@logger.info "#{self.class}##{__method__}"
+		@logger.debug "#{self.class}##{__method__}: " + "reverse_proxy_id: #{reverse_proxy_id}, name: #{name}, pattern: #{pattern}, replacement: #{replacement}"
+		@logger.debug "#{self.class}##{__method__}: " + "locked: #{locked}"
+
+		reverse_proxy_substitute = nil
+		lock_success = false
+		update_db_success = false
+
+		begin
+			unless locked
+				lock_success = @@m.try_lock
+				@logger.debug "#{self.class}##{__method__}: " + "try_lock: #{lock_success}"
+				unless lock_success
+					raise "Couldn't get lock. Please try again later."
+				end
+			end
+
+			@logger.debug "#{self.class}##{__method__}: " + "transaction start"
+			ActiveRecord::Base.transaction do
+				@logger.debug "#{self.class}##{__method__}: " + "update db start"
+				reverse_proxy_substitute = ReverseProxy.new
+				reverse_proxy_substitute[:reverse_proxy_id] = reverse_proxy_id
+				reverse_proxy_substitute[:name]             = name
+				reverse_proxy_substitute[:pattern]          = pattern
+				reverse_proxy_substitute[:replacement]      = replacement
+				reverse_proxy_substitute.save!
+				update_db_success = true
+				@logger.debug "#{self.class}##{__method__}: " + "update db end"
+
+				@logger.debug "#{self.class}##{__method__}: " + "update nginx config start"
+				NginxController.replace @config, reverse_proxy_substitute.reverse_proxy
+				@logger.debug "#{self.class}##{__method__}: " + "update nginx config end"
+			end
+			@logger.debug "#{self.class}##{__method__}: " + "transaction end"
+
+			reverse_proxy_substitute
+		rescue
+			raise
+		ensure
+			unless locked
+				if lock_success
+					@logger.debug "#{self.class}##{__method__}: " + "unlock start"
+					@@m.unlock
+					@logger.debug "#{self.class}##{__method__}: " + "unlock end"
+				end
+			end
+		end
+	end
+
+	def destroy_reverse_proxy_substitute id, locked: false
+		@logger.info "#{self.class}##{__method__}"
+		@logger.debug "#{self.class}##{__method__}: " + "id: #{id}"
+		@logger.debug "#{self.class}##{__method__}: " + "locked: #{locked}"
+
+		reverse_proxy_substitute = nil
+		lock_success = false
+		update_db_success = false
+
+		begin
+			unless locked
+				lock_success = @@m.try_lock
+				@logger.debug "#{self.class}##{__method__}: " + "try_lock: #{lock_success}"
+				unless lock_success
+					raise "Couldn't get lock. Please try again later."
+				end
+			end
+
+			@logger.debug "#{self.class}##{__method__}: " + "transaction start"
+			ActiveRecord::Base.transaction do
+				@logger.debug "#{self.class}##{__method__}: " + "update db start"
+				reverse_proxy_substitute = ReverseProxySubstitute.find( id )
+				reverse_proxy_substitute.destroy!
+				update_db_success = true
+				@logger.debug "#{self.class}##{__method__}: " + "update db end"
+
+				@logger.debug "#{self.class}##{__method__}: " + "update nginx config start"
+				NginxController.destroy @config, reverse_proxy_substitute
+				@logger.debug "#{self.class}##{__method__}: " + "update nginx config end"
+			end
+			@logger.debug "#{self.class}##{__method__}: " + "transaction end"
+
+			reverse_proxy_substitute
+		rescue
+			raise
+		ensure
+			unless locked
+				if lock_success
+					@logger.debug "#{self.class}##{__method__}: " + "unlock start"
+					@@m.unlock
+					@logger.debug "#{self.class}##{__method__}: " + "unlock end"
+				end
+			end
+		end
+	end
+
+	def edit_reverse_proxy_substitute id, reverse_proxy_id, name, pattern, replacement, locked: false
+		@logger.info "#{self.class}##{__method__}"
+		@logger.debug "#{self.class}##{__method__}: " + "id: #{id}, reverse_proxy_id: #{reverse_proxy_id}, name: #{name}, pattern: #{pattern}, replacement: #{replacement}"
+		@logger.debug "#{self.class}##{__method__}: " + "locked: #{locked}"
+
+		reverse_proxy_substitute = nil
+		lock_success = false
+		update_db_success = false
+
+		begin
+			unless locked
+				lock_success = @@m.try_lock
+				@logger.debug "#{self.class}##{__method__}: " + "try_lock: #{lock_success}"
+				unless lock_success
+					raise "Couldn't get lock. Please try again later."
+				end
+			end
+
+			@logger.debug "#{self.class}##{__method__}: " + "transaction start"
+			ActiveRecord::Base.transaction do
+				reverse_proxy = ReverseProxySubstitute.find( id )
+
+				@logger.debug "#{self.class}##{__method__}: " + "update db start"
+				reverse_proxy_substitute[:reverse_proxy_id] = reverse_proxy_id
+				reverse_proxy_substitute[:name]             = name
+				reverse_proxy_substitute[:pattern]          = pattern
+				reverse_proxy_substitute[:replacement]      = replacement
+				reverse_proxy_substitute.save!
+				update_db_success = true
+				@logger.debug "#{self.class}##{__method__}: " + "update db end"
+
+				@logger.debug "#{self.class}##{__method__}: " + "update nginx config start"
+				NginxController.replace @config, reverse_proxy_substitute.reverse_proxy
+				@logger.debug "#{self.class}##{__method__}: " + "update nginx config end"
+			end
+			@logger.debug "#{self.class}##{__method__}: " + "transaction end"
+
+			reverse_proxy_substitute
+		rescue
+			raise
+		ensure
+			unless locked
+				if lock_success
+					@logger.debug "#{self.class}##{__method__}: " + "unlock start"
+					@@m.unlock
+					@logger.debug "#{self.class}##{__method__}: " + "unlock end"
+				end
+			end
+		end
+	end
+
 	def snapshots
 		@logger.info "#{self.class}##{__method__}"
 		Snapshot.all
@@ -1680,6 +1833,14 @@ class LxcManager
 					other_reverse_proxy[:href_path]    = reverse_proxy.href_path
 					other_reverse_proxy.save!
 					other_reverse_proxies.push other_reverse_proxy
+					other_reverse_proxy.reverse_proxy_substitutes.each{ |reverse_proxy_substitute|
+						other_reverse_proxy_substitute = ReverseProxySubstitute.new
+						other_reverse_proxy_substitute[:reverse_proxy_id] = other_reverse_proxy.id
+						other_reverse_proxy_substitute[:name]             = reverse_proxy_substitute.name
+						other_reverse_proxy_substitute[:pattern]          = reverse_proxy_substitute.pattern
+						other_reverse_proxy_substitute[:replacement]      = reverse_proxy_substitute.replacement
+						other_reverse_proxy_substitute.save!
+					}
 				}
 
 				update_db_success = true

@@ -10,6 +10,8 @@ class LxcManager
 
 		belongs_to :container
 
+		has_many :reverse_proxy_substitutes, dependent: :destroy
+
 		validates :container_id, presence: true
 		validates :name,         presence: true, uniqueness: { scope: [:container_id], conditions: -> { where( deleted_at: nil ) } }, format: { with: /\A[a-zA-Z][a-zA-Z0-9 @._-]{,99}\z/ }
 		validates :listen_port,  presence: true, uniqueness: { conditions: -> { where( deleted_at: nil ) } }, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 65535 }

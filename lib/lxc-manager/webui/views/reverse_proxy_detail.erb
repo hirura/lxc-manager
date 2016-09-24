@@ -1,0 +1,69 @@
+<h1 class="page-header">Reverse Proxy Detail: <%= reverse_proxy.name %></h1>
+
+<h2>Information</h2>
+<div class="table-responsive">
+	<table class="table table-striped">
+		<tbody>
+			<tr>
+				<td>Name</td>
+				<td><%= reverse_proxy.name %></td>
+			</tr>
+			<tr>
+				<td>Location</td>
+				<td><%= reverse_proxy.location %></td>
+			</tr>
+			<tr>
+				<td>Proxy Port</td>
+				<td><%= reverse_proxy.proxy_port %></td>
+			</tr>
+			<tr>
+				<td>Proxy Pass</td>
+				<td><%= reverse_proxy.proxy_pass %></td>
+			</tr>
+			<tr>
+				<td>Href Path</td>
+				<td><%= reverse_proxy.href_path %></td>
+			</tr>
+			<tr>
+				<td>Substitutes</td>
+				<td><%= reverse_proxy.reverse_proxy_substitutes.size %></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<h2>Substitutes</h2>
+<button type="button" class="btn btn-default" onClick="create_reverse_proxy_substitute(<%= reverse_proxy.id %>);">
+	<span class="glyphicon glyphicon-plus-sign"></span> Create
+</button>
+<div class="table-responsive">
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Pattern</th>
+				<th>Replacement</th>
+				<th>Action</th>
+			</tr>
+		</thead>
+		<tbody>
+			<% reverse_proxy.reverse_proxy_substitutes.each.with_index{ |reverse_proxy_substitute, idx| %>
+				<tr>
+					<td><%= CGI.escapeHTML reverse_proxy_substitute.name %></td>
+					<td><%= CGI.escapeHTML reverse_proxy_substitute.pattern %></td>
+					<td><%= CGI.escapeHTML reverse_proxy_substitute.replacement %></td>
+					<td>
+						<div class="btn-group btn-group-xs" role="group" aria-label="...">
+							<button type="button" class="btn btn-default btn-xs" onClick="edit_reverse_proxy_substitute(<%= reverse_proxy_substitute.id %>);">
+								<span class="glyphicon glyphicon-cog"></span> Edit
+							</button>
+							<button type="button" class="btn btn-default btn-xs" onClick="destroy_reverse_proxy_substitute(<%= reverse_proxy_substitute.id %>);">
+								<span class="glyphicon glyphicon-remove-sign"></span> Destroy
+							</button>
+						</div>
+					</td>
+				</tr>
+			<% } %>
+		</tbody>
+	</table>
+</div>

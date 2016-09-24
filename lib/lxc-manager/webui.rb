@@ -1407,6 +1407,206 @@ class LxcManager
 			end
 		end
 
+		get '/reverse_proxy_detail/:id' do
+			begin
+				logger = LxcManager::Logger.instance
+				logger.info "GET /reverse_proxy_detail/#{params[:id]}"
+				logger.debug "params: #{params}"
+				if session[:user_id]
+					lxc_manager = LxcManager.new
+					logger.info "requested by #{lxc_manager.users.find( session[:user_id] ).name}"
+					locals = Hash.new
+					locals["lxc_manager"] = lxc_manager
+					locals["config"]      = lxc_manager.config
+					locals["reverse_proxy"]   = lxc_manager.reverse_proxies.find( params[:id] )
+					erb :reverse_proxy_detail, locals: locals
+				else
+					logger.info 'No session[:user_id]: Redirect to /login'
+					redirect '/login'
+				end
+			rescue => e
+				logger.error (["#{e.backtrace.first}: #{e.message} (#{e.class})"] + e.backtrace.drop(1)).join("\n\t")
+				lxc_manager = LxcManager.new
+				locals = Hash.new
+				locals["lxc_manager"] = lxc_manager
+				locals["config"]      = lxc_manager.config
+				locals["container"]   = lxc_manager.reverse_proxies.find( params[:id] ).container
+				locals["e"]           = e
+				erb :container_detail, locals: locals
+			end
+		end
+
+		get '/create_reverse_proxy_substitute/:id' do
+			begin
+				logger = LxcManager::Logger.instance
+				logger.info "GET /create_reverse_proxy_substitute/#{params[:id]}"
+				logger.debug "params: #{params}"
+				if session[:user_id]
+					lxc_manager = LxcManager.new
+					logger.info "requested by #{lxc_manager.users.find( session[:user_id] ).name}"
+					locals = Hash.new
+					locals["lxc_manager"]   = lxc_manager
+					locals["config"]        = lxc_manager.config
+					locals["reverse_proxy"] = lxc_manager.reverse_proxies.find( params[:id] )
+					erb :create_reverse_proxy_substitute, locals: locals
+				else
+					logger.info 'No session[:user_id]: Redirect to /login'
+					redirect '/login'
+				end
+			rescue => e
+				logger.error (["#{e.backtrace.first}: #{e.message} (#{e.class})"] + e.backtrace.drop(1)).join("\n\t")
+				lxc_manager = LxcManager.new
+				locals = Hash.new
+				locals["lxc_manager"] = lxc_manager
+				locals["config"]      = lxc_manager.config
+				locals["reverse_proxy"] = lxc_manager.reverse_proxies.find( params[:id] )
+				erb :reverse_proxy_detail, locals: locals
+			end
+		end
+
+		post '/create_reverse_proxy_substitute/:id' do
+			begin
+				logger = LxcManager::Logger.instance
+				logger.info "POST /create_reverse_proxy_substitute/#{params[:id]}"
+				logger.debug "params: #{params}"
+				if session[:user_id]
+					lxc_manager = LxcManager.new
+					logger.info "requested by #{lxc_manager.users.find( session[:user_id] ).name}"
+					lxc_manager.create_reverse_proxy_substitute params[:id], params[:name], params[:pattern], params[:replacement]
+					redirect "/reverse_proxy_detail/#{params[:id]}"
+				else
+					logger.info 'No session[:user_id]: Redirect to /login'
+					redirect '/login'
+				end
+			rescue => e
+				logger.error (["#{e.backtrace.first}: #{e.message} (#{e.class})"] + e.backtrace.drop(1)).join("\n\t")
+				lxc_manager = LxcManager.new
+				locals = Hash.new
+				locals["lxc_manager"]   = lxc_manager
+				locals["config"]        = lxc_manager.config
+				locals["reverse_proxy"] = lxc_manager.reverse_proxies.find( params[:id] )
+				locals["name"]          = params[:name]
+				locals["pattern"]       = params[:pattern]
+				locals["replacement"]   = params[:replacement]
+				locals["e"]             = e
+				erb :create_reverse_proxy_substitute, locals: locals
+			end
+		end
+
+		get '/edit_reverse_proxy_substitute/:id' do
+			begin
+				logger = LxcManager::Logger.instance
+				logger.info "GET /edit_reverse_proxy_substitute/#{params[:id]}"
+				logger.debug "params: #{params}"
+				if session[:user_id]
+					lxc_manager = LxcManager.new
+					logger.info "requested by #{lxc_manager.users.find( session[:user_id] ).name}"
+					locals = Hash.new
+					locals["lxc_manager"]              = lxc_manager
+					locals["config"]                   = lxc_manager.config
+					locals["reverse_proxy_substitute"] = lxc_manager.reverse_proxy_substitutes.find( params[:id] )
+					erb :edit_reverse_proxy_substitute, locals: locals
+				else
+					logger.info 'No session[:user_id]: Redirect to /login'
+					redirect '/login'
+				end
+			rescue => e
+				logger.error (["#{e.backtrace.first}: #{e.message} (#{e.class})"] + e.backtrace.drop(1)).join("\n\t")
+				lxc_manager = LxcManager.new
+				locals = Hash.new
+				locals["lxc_manager"]   = lxc_manager
+				locals["config"]        = lxc_manager.config
+				locals["reverse_proxy"] = lxc_manager.reverse_proxy_substitutes.find( params[:id] ).reverse_proxy
+				erb :reverse_proxy_detail, locals: locals
+			end
+		end
+
+		post '/edit_reverse_proxy_substitute/:id' do
+			begin
+				logger = LxcManager::Logger.instance
+				logger.info "POST /edit_reverse_proxy_substitute/#{params[:id]}"
+				logger.debug "params: #{params}"
+				if session[:user_id]
+					lxc_manager = LxcManager.new
+					logger.info "requested by #{lxc_manager.users.find( session[:user_id] ).name}"
+					reverse_proxy_substitute = lxc_manager.reverse_proxy_substitutes.find( params[:id] )
+					reverse_proxy = reverse_proxy_substitute.reverse_proxy
+					lxc_manager.edit_reverse_proxy_substitute params[:id], reverse_proxy.id, params[:name], params[:pattern], params[:replacement]
+					redirect "/reverse_proxy_detail/#{reverse_proxy.id}"
+				else
+					logger.info 'No session[:user_id]: Redirect to /login'
+					redirect '/login'
+				end
+			rescue => e
+				logger.error (["#{e.backtrace.first}: #{e.message} (#{e.class})"] + e.backtrace.drop(1)).join("\n\t")
+				lxc_manager = LxcManager.new
+				locals = Hash.new
+				locals["lxc_manager"]              = lxc_manager
+				locals["config"]                   = lxc_manager.config
+				locals["reverse_proxy_substitute"] = lxc_manager.reverse_proxy_substitutes.find( params[:id] )
+				locals["name"]                     = params[:name]
+				locals["pattern"]                  = params[:pattern]
+				locals["replacement"]              = params[:replacement]
+				locals["e"]                        = e
+				erb :edit_reverse_proxy_substitute, locals: locals
+			end
+		end
+
+		get '/destroy_reverse_proxy_substitute/:id' do
+			begin
+				logger = LxcManager::Logger.instance
+				logger.info "GET /destroy_reverse_proxy_substitute/#{params[:id]}"
+				logger.debug "params: #{params}"
+				if session[:user_id]
+					lxc_manager = LxcManager.new
+					logger.info "requested by #{lxc_manager.users.find( session[:user_id] ).name}"
+					locals = Hash.new
+					locals["lxc_manager"]   = lxc_manager
+					locals["config"]        = lxc_manager.config
+					locals["reverse_proxy_substitute"] = lxc_manager.reverse_proxy_substitutes.find( params[:id] )
+					erb :destroy_reverse_proxy_substitute, locals: locals
+				else
+					logger.info 'No session[:user_id]: Redirect to /login'
+					redirect '/login'
+				end
+			rescue => e
+				logger.error (["#{e.backtrace.first}: #{e.message} (#{e.class})"] + e.backtrace.drop(1)).join("\n\t")
+				lxc_manager = LxcManager.new
+				locals = Hash.new
+				locals["lxc_manager"]   = lxc_manager
+				locals["config"]        = lxc_manager.config
+				locals["reverse_proxy"] = lxc_manager.reverse_proxy_substitutes.find( params[:id] ).reverse_proxy
+				erb :reverse_proxy_detail, locals: locals
+			end
+		end
+
+		post '/destroy_reverse_proxy_substitute/:id' do
+			begin
+				logger = LxcManager::Logger.instance
+				logger.info "POST /destroy_reverse_proxy_substitute/#{params[:id]}"
+				logger.debug "params: #{params}"
+				if session[:user_id]
+					lxc_manager = LxcManager.new
+					logger.info "requested by #{lxc_manager.users.find( session[:user_id] ).name}"
+					reverse_proxy = lxc_manager.reverse_proxy_substitutes.find( params[:id] ).reverse_proxy
+					lxc_manager.destroy_reverse_proxy_substitute params[:id]
+					redirect "/reverse_proxy_detail/#{reverse_proxy.id}"
+				else
+					logger.info 'No session[:user_id]: Redirect to /login'
+					redirect '/login'
+				end
+			rescue => e
+				logger.error (["#{e.backtrace.first}: #{e.message} (#{e.class})"] + e.backtrace.drop(1)).join("\n\t")
+				lxc_manager = LxcManager.new
+				locals = Hash.new
+				locals["lxc_manager"]              = lxc_manager
+				locals["config"]                   = lxc_manager.config
+				locals["reverse_proxy_substitute"] = lxc_manager.reverse_proxy_substitutes.find( params[:id] )
+				locals["e"]                        = e
+				erb :destroy_reverse_proxy_substitute, locals: locals
+			end
+		end
+
 		get '/start_container/:id' do
 			begin
 				logger = LxcManager::Logger.instance
