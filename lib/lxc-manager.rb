@@ -1510,7 +1510,7 @@ class LxcManager
 
 			@logger.debug "#{self.class}##{__method__}: " + "transaction start"
 			ActiveRecord::Base.transaction do
-				reverse_proxy = ReverseProxySubstitute.find( id )
+				reverse_proxy_substitute = ReverseProxySubstitute.find( id )
 
 				@logger.debug "#{self.class}##{__method__}: " + "update db start"
 				reverse_proxy_substitute[:reverse_proxy_id] = reverse_proxy_id
