@@ -88,7 +88,6 @@ class LxcManager
 				locals["lxc_manager"] = lxc_manager
 				locals["config"]      = lxc_manager.config
 				locals["e"]           = e
-				erb :create_user, locals: locals
 				erb :login, layout: nil, locals: locals
 			end
 		end
@@ -623,6 +622,7 @@ class LxcManager
 				locals["lxc_manager"] = lxc_manager
 				locals["config"]      = lxc_manager.config
 				locals["networks"]    = lxc_manager.networks
+				locals["e"]           = e
 				erb :networks, locals: locals
 			end
 		end
@@ -705,6 +705,7 @@ class LxcManager
 				locals["lxc_manager"] = lxc_manager
 				locals["config"]      = lxc_manager.config
 				locals["containers"]  = lxc_manager.containers
+				locals["e"]           = e
 				erb :containers, locals: locals
 			end
 		end
@@ -763,6 +764,7 @@ class LxcManager
 				locals["lxc_manager"] = lxc_manager
 				locals["config"]      = lxc_manager.config
 				locals["containers"]  = lxc_manager.containers
+				locals["e"]           = e
 				erb :containers, locals: locals
 			end
 		end
@@ -818,6 +820,7 @@ class LxcManager
 				locals["lxc_manager"] = lxc_manager
 				locals["config"]      = lxc_manager.config
 				locals["containers"]  = lxc_manager.containers
+				locals["e"]           = e
 				erb :containers, locals: locals
 			end
 		end
@@ -847,6 +850,7 @@ class LxcManager
 				locals["config"]      = lxc_manager.config
 				locals["container"]   = lxc_manager.containers.find( params[:id] )
 				locals['server_name'] = request.env['SERVER_NAME']
+				locals["e"]           = e
 				erb :container_detail, locals: locals
 			end
 		end
@@ -906,6 +910,7 @@ class LxcManager
 				locals["config"]      = lxc_manager.config
 				locals["container"]   = lxc_manager.containers.find( params[:id] )
 				locals['server_name'] = request.env['SERVER_NAME']
+				locals["e"]           = e
 				erb :container_detail, locals: locals
 			end
 		end
@@ -966,6 +971,7 @@ class LxcManager
 				locals["config"]      = lxc_manager.config
 				locals["container"]   = lxc_manager.interfaces.find( params[:id] ).container
 				locals['server_name'] = request.env['SERVER_NAME']
+				locals["e"]           = e
 				erb :container_detail, locals: locals
 			end
 		end
@@ -1026,6 +1032,7 @@ class LxcManager
 				locals["config"]      = lxc_manager.config
 				locals["container"]   = lxc_manager.interfaces.find( params[:id] ).container
 				locals['server_name'] = request.env['SERVER_NAME']
+				locals["e"]           = e
 				erb :container_detail, locals: locals
 			end
 		end
@@ -1082,6 +1089,7 @@ class LxcManager
 				locals["config"]      = lxc_manager.config
 				locals["container"]   = lxc_manager.containers.find( params[:id] )
 				locals['server_name'] = request.env['SERVER_NAME']
+				locals["e"]           = e
 				erb :container_detail, locals: locals
 			end
 		end
@@ -1139,6 +1147,7 @@ class LxcManager
 				locals["config"]      = lxc_manager.config
 				locals["container"]   = lxc_manager.napts.find( params[:id] ).container
 				locals['server_name'] = request.env['SERVER_NAME']
+				locals["e"]           = e
 				erb :container_detail, locals: locals
 			end
 		end
@@ -1198,6 +1207,7 @@ class LxcManager
 				locals["config"]      = lxc_manager.config
 				locals["container"]   = lxc_manager.napts.find( params[:id] ).container
 				locals['server_name'] = request.env['SERVER_NAME']
+				locals["e"]           = e
 				erb :container_detail, locals: locals
 			end
 		end
@@ -1254,6 +1264,7 @@ class LxcManager
 				locals["config"]      = lxc_manager.config
 				locals["container"]   = lxc_manager.containers.find( params[:id] )
 				locals['server_name'] = request.env['SERVER_NAME']
+				locals["e"]           = e
 				erb :container_detail, locals: locals
 			end
 		end
@@ -1314,6 +1325,7 @@ class LxcManager
 				locals["config"]      = lxc_manager.config
 				locals["container"]   = lxc_manager.reverse_proxies.find( params[:id] ).container
 				locals['server_name'] = request.env['SERVER_NAME']
+				locals["e"]           = e
 				erb :container_detail, locals: locals
 			end
 		end
@@ -1376,6 +1388,7 @@ class LxcManager
 				locals["config"]      = lxc_manager.config
 				locals["container"]   = lxc_manager.reverse_proxies.find( params[:id] ).container
 				locals['server_name'] = request.env['SERVER_NAME']
+				locals["e"]           = e
 				erb :container_detail, locals: locals
 			end
 		end
@@ -1457,9 +1470,10 @@ class LxcManager
 				logger.error (["#{e.backtrace.first}: #{e.message} (#{e.class})"] + e.backtrace.drop(1)).join("\n\t")
 				lxc_manager = LxcManager.new
 				locals = Hash.new
-				locals["lxc_manager"] = lxc_manager
-				locals["config"]      = lxc_manager.config
+				locals["lxc_manager"]   = lxc_manager
+				locals["config"]        = lxc_manager.config
 				locals["reverse_proxy"] = lxc_manager.reverse_proxies.find( params[:id] )
+				locals["e"]             = e
 				erb :reverse_proxy_detail, locals: locals
 			end
 		end
@@ -1517,6 +1531,7 @@ class LxcManager
 				locals["lxc_manager"]   = lxc_manager
 				locals["config"]        = lxc_manager.config
 				locals["reverse_proxy"] = lxc_manager.reverse_proxy_substitutes.find( params[:id] ).reverse_proxy
+				locals["e"]             = e
 				erb :reverse_proxy_detail, locals: locals
 			end
 		end
@@ -1576,6 +1591,7 @@ class LxcManager
 				locals["lxc_manager"]   = lxc_manager
 				locals["config"]        = lxc_manager.config
 				locals["reverse_proxy"] = lxc_manager.reverse_proxy_substitutes.find( params[:id] ).reverse_proxy
+				locals["e"]             = e
 				erb :reverse_proxy_detail, locals: locals
 			end
 		end
@@ -1632,6 +1648,7 @@ class LxcManager
 				locals["lxc_manager"] = lxc_manager
 				locals["config"]      = lxc_manager.config
 				locals["containers"]  = lxc_manager.containers
+				locals["e"]           = e
 				erb :containers, locals: locals
 			end
 		end
@@ -1688,6 +1705,7 @@ class LxcManager
 				locals["lxc_manager"] = lxc_manager
 				locals["config"]      = lxc_manager.config
 				locals["containers"]  = lxc_manager.containers
+				locals["e"]           = e
 				erb :containers, locals: locals
 			end
 		end
@@ -1770,6 +1788,7 @@ class LxcManager
 				locals["lxc_manager"] = lxc_manager
 				locals["config"]      = lxc_manager.config
 				locals["containers"]  = lxc_manager.containers
+				locals["e"]           = e
 				erb :snapshots, locals: locals
 			end
 		end
@@ -1826,6 +1845,7 @@ class LxcManager
 				locals["lxc_manager"] = lxc_manager
 				locals["config"]      = lxc_manager.config
 				locals["containers"]  = lxc_manager.containers
+				locals["e"]           = e
 				erb :snapshots, locals: locals
 			end
 		end
@@ -1880,6 +1900,7 @@ class LxcManager
 				locals["lxc_manager"] = lxc_manager
 				locals["config"]      = lxc_manager.config
 				locals["containers"]  = lxc_manager.containers
+				locals["e"]           = e
 				erb :snapshots, locals: locals
 			end
 		end
@@ -1908,6 +1929,7 @@ class LxcManager
 				locals["lxc_manager"] = lxc_manager
 				locals["config"]      = lxc_manager.config
 				locals["snapshot"]    = lxc_manager.snapshots.find( params[:id] )
+				locals["e"]           = e
 				erb :snapshot_detail, locals: locals
 			end
 		end
@@ -1964,6 +1986,7 @@ class LxcManager
 				locals["lxc_manager"] = lxc_manager
 				locals["config"]      = lxc_manager.config
 				locals["containers"]  = lxc_manager.containers
+				locals["e"]           = e
 				erb :snapshots, locals: locals
 			end
 		end
@@ -2018,6 +2041,7 @@ class LxcManager
 				locals["lxc_manager"] = lxc_manager
 				locals["config"]      = lxc_manager.config
 				locals["containers"]  = lxc_manager.containers
+				locals["e"]           = e
 				erb :snapshots, locals: locals
 			end
 		end
@@ -2072,6 +2096,7 @@ class LxcManager
 				locals["lxc_manager"] = lxc_manager
 				locals["config"]      = lxc_manager.config
 				locals["containers"]  = lxc_manager.containers
+				locals["e"]           = e
 				erb :snapshots, locals: locals
 			end
 		end
@@ -2139,6 +2164,7 @@ class LxcManager
 				locals["lxc_manager"] = lxc_manager
 				locals["config"]      = lxc_manager.config
 				locals["containers"]  = lxc_manager.containers
+				locals["e"]           = e
 				erb :containers, locals: locals
 			end
 		end
