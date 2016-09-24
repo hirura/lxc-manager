@@ -3,7 +3,7 @@
 <form method="POST" action="/edit_reverse_proxy_substitute/<%= reverse_proxy_substitute.id %>">
 	<div class="form-group">
 		<label for="name" class="control-label">Name</label>
-		<input type="text" class="form-control" id="name" name="name" value="<%= name rescue reverse_proxy.name %>">
+		<input type="text" class="form-control" id="name" name="name" value="<%= name rescue reverse_proxy_substitute.name %>">
 
 		<label for="pattern" class="control-label">Pattern</label>
 		<input type="text" class="form-control" id="pattern" name="pattern" value="<%= pattern rescue reverse_proxy_substitute.pattern %>">
