@@ -1266,7 +1266,7 @@ class LxcManager
 				if session[:user_id]
 					lxc_manager = LxcManager.new
 					logger.info "requested by #{lxc_manager.users.find( session[:user_id] ).name}"
-					lxc_manager.create_reverse_proxy params[:id], params[:name], params[:location], params[:proxy_port], params[:proxy_pass]
+					lxc_manager.create_reverse_proxy params[:id], params[:name], params[:location], params[:proxy_port], params[:proxy_pass], params[:href_path]
 					redirect "/container_detail/#{params[:id]}"
 				else
 					logger.info 'No session[:user_id]: Redirect to /login'
@@ -1283,6 +1283,7 @@ class LxcManager
 				locals["location"]    = params[:location]
 				locals["proxy_port"]  = params[:proxy_port]
 				locals["proxy_pass"]  = params[:proxy_pass]
+				locals["href_path"]   = params[:href_path]
 				locals["e"]           = e
 				erb :create_reverse_proxy, locals: locals
 			end
@@ -1327,7 +1328,7 @@ class LxcManager
 					logger.info "requested by #{lxc_manager.users.find( session[:user_id] ).name}"
 					reverse_proxy = lxc_manager.reverse_proxies.find( params[:id] )
 					container = reverse_proxy.container
-					lxc_manager.edit_reverse_proxy params[:id], container.id, params[:name], params[:location], params[:proxy_port], params[:proxy_pass], listen_port: reverse_proxy.listen_port
+					lxc_manager.edit_reverse_proxy params[:id], container.id, params[:name], params[:location], params[:proxy_port], params[:proxy_pass], params[:href_path], listen_port: reverse_proxy.listen_port
 					redirect "/container_detail/#{container.id}"
 				else
 					logger.info 'No session[:user_id]: Redirect to /login'
@@ -1344,6 +1345,7 @@ class LxcManager
 				locals["location"]      = params[:location]
 				locals["proxy_port"]    = params[:proxy_port]
 				locals["proxy_pass"]    = params[:proxy_pass]
+				locals["href_path"]     = params[:href_path]
 				locals["e"]             = e
 				erb :edit_reverse_proxy, locals: locals
 			end

@@ -13,6 +13,9 @@
 
 		<label for="proxy_pass" class="control-label">Proxy Pass</label>
 		<input type="text" class="form-control" id="proxy_pass" name="proxy_pass" value="<%= proxy_pass rescue reverse_proxy.proxy_pass %>">
+
+		<label for="href_path" class="control-label">Href Path</label>
+		<input type="text" class="form-control" id="href_path" name="href_path" value="<%= href_path rescue reverse_proxy.href_path %>">
 	</div>
 
 	<a type="button" class="btn btn-default" href="javascript:history.back();">Cancel</a>

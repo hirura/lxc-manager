@@ -1235,7 +1235,7 @@ class LxcManager
 		ReverseProxy.all
 	end
 
-	def create_reverse_proxy container_id, name, location, proxy_port, proxy_pass, listen_port: nil, locked: false
+	def create_reverse_proxy container_id, name, location, proxy_port, proxy_pass, href_path, listen_port: nil, locked: false
 		@logger.info "#{self.class}##{__method__}"
 		@logger.debug "#{self.class}##{__method__}: " + "container_id: #{container_id}, name: #{name}, location: #{location}, proxy_port: #{proxy_port}, proxy_pass: #{proxy_pass}, listen_port: #{listen_port}"
 		@logger.debug "#{self.class}##{__method__}: " + "locked: #{locked}"
@@ -1263,6 +1263,7 @@ class LxcManager
 				reverse_proxy[:location]     = location
 				reverse_proxy[:proxy_port]   = proxy_port
 				reverse_proxy[:proxy_pass]   = proxy_pass
+				reverse_proxy[:href_path]    = href_path
 				reverse_proxy.save!
 				update_db_success = true
 				@logger.debug "#{self.class}##{__method__}: " + "update db end"
@@ -1333,7 +1334,7 @@ class LxcManager
 		end
 	end
 
-	def edit_reverse_proxy id, container_id, name, location, proxy_port, proxy_pass, listen_port: nil, locked: false
+	def edit_reverse_proxy id, container_id, name, location, proxy_port, proxy_pass, href_path, listen_port: nil, locked: false
 		@logger.info "#{self.class}##{__method__}"
 		@logger.debug "#{self.class}##{__method__}: " + "id: #{id}, container_id: #{container_id}, name: #{name}, location: #{location}, proxy_port: #{proxy_port}, proxy_pass: #{proxy_pass}, listen_port: #{listen_port}"
 		@logger.debug "#{self.class}##{__method__}: " + "locked: #{locked}"
@@ -1362,6 +1363,7 @@ class LxcManager
 				reverse_proxy[:location]     = location
 				reverse_proxy[:proxy_port]   = proxy_port
 				reverse_proxy[:proxy_pass]   = proxy_pass
+				reverse_proxy[:href_path]    = href_path
 				reverse_proxy.save!
 				update_db_success = true
 				@logger.debug "#{self.class}##{__method__}: " + "update db end"
@@ -1675,6 +1677,7 @@ class LxcManager
 					other_reverse_proxy[:location]     = reverse_proxy.location
 					other_reverse_proxy[:proxy_port]   = reverse_proxy.proxy_port
 					other_reverse_proxy[:proxy_pass]   = reverse_proxy.proxy_pass
+					other_reverse_proxy[:href_path]    = reverse_proxy.href_path
 					other_reverse_proxy.save!
 					other_reverse_proxies.push other_reverse_proxy
 				}
