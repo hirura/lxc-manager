@@ -1833,7 +1833,7 @@ class LxcManager
 					other_reverse_proxy[:href_path]    = reverse_proxy.href_path
 					other_reverse_proxy.save!
 					other_reverse_proxies.push other_reverse_proxy
-					other_reverse_proxy.reverse_proxy_substitutes.each{ |reverse_proxy_substitute|
+					reverse_proxy.reverse_proxy_substitutes.each{ |reverse_proxy_substitute|
 						other_reverse_proxy_substitute = ReverseProxySubstitute.new
 						other_reverse_proxy_substitute[:reverse_proxy_id] = other_reverse_proxy.id
 						other_reverse_proxy_substitute[:name]             = reverse_proxy_substitute.name
