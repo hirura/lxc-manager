@@ -23,7 +23,6 @@ class LxcManager
 			nginx_config += "  location #{reverse_proxy.location} {\n"
 			nginx_config += "    proxy_pass http://#{reverse_proxy.container.interfaces.find_by_name( 'management' ).v4_address}:#{reverse_proxy.proxy_port}#{reverse_proxy.proxy_pass};\n"
 			if reverse_proxy.reverse_proxy_substitutes.any?
-				nginx_config += "    proxy_set_header Accept-Encoding '';\n"
 				nginx_config += "    sub_filter_types '*';\n"
 				nginx_config += "    sub_filter_once off;\n"
 				reverse_proxy.reverse_proxy_substitutes.each{ |reverse_proxy_substitute|
@@ -116,7 +115,6 @@ class LxcManager
 				nginx_config += "  location #{reverse_proxy.location} {\n"
 				nginx_config += "    proxy_pass http://#{reverse_proxy.container.interfaces.find_by_name( 'management' ).v4_address}:#{reverse_proxy.proxy_port}#{reverse_proxy.proxy_pass};\n"
 				if reverse_proxy.reverse_proxy_substitutes.any?
-					nginx_config += "    proxy_set_header Accept-Encoding '';\n"
 					nginx_config += "    sub_filter_types '*';\n"
 					nginx_config += "    sub_filter_once off;\n"
 					reverse_proxy.reverse_proxy_substitutes.each{ |reverse_proxy_substitute|
