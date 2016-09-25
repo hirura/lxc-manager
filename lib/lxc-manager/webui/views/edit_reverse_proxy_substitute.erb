@@ -6,10 +6,10 @@
 		<input type="text" class="form-control" id="name" name="name" value="<%= name rescue reverse_proxy_substitute.name %>">
 
 		<label for="pattern" class="control-label">Pattern</label>
-		<input type="text" class="form-control" id="pattern" name="pattern" value="<%= pattern rescue reverse_proxy_substitute.pattern %>">
+		<input type="text" class="form-control" id="pattern" name="pattern" value='<%= pattern rescue reverse_proxy_substitute.pattern %>'>
 
 		<label for="replacement" class="control-label">Replacement</label>
-		<input type="text" class="form-control" id="replacement" name="replacement" value="<%= replacement rescue reverse_proxy_substitute.replacement %>">
+		<input type="text" class="form-control" id="replacement" name="replacement" value='<%= replacement rescue reverse_proxy_substitute.replacement %>'>
 	</div>
 
 	<a type="button" class="btn btn-default" href="javascript:history.back();">Cancel</a>
