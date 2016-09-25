@@ -26,7 +26,7 @@ class LxcManager
 				nginx_config += "    sub_filter_types '*';\n"
 				nginx_config += "    sub_filter_once off;\n"
 				reverse_proxy.reverse_proxy_substitutes.each{ |reverse_proxy_substitute|
-					nginx_config += "    sub_filter '#{reverse_proxy_substitute.pattern}' '#{reverse_proxy_substitute.replacement}';\n"
+					nginx_config += "    sub_filter \"#{reverse_proxy_substitute.pattern}\" \"#{reverse_proxy_substitute.replacement}\";\n"
 				}
 			end
 			nginx_config += "  }\n"
@@ -118,7 +118,7 @@ class LxcManager
 					nginx_config += "    sub_filter_types '*';\n"
 					nginx_config += "    sub_filter_once off;\n"
 					reverse_proxy.reverse_proxy_substitutes.each{ |reverse_proxy_substitute|
-						nginx_config += "    sub_filter '#{reverse_proxy_substitute.pattern}' '#{reverse_proxy_substitute.replacement}';\n"
+						nginx_config += "    sub_filter \"#{reverse_proxy_substitute.pattern}\" \"#{reverse_proxy_substitute.replacement}\";\n"
 					}
 				end
 				nginx_config += "  }\n"
