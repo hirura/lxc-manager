@@ -1471,7 +1471,7 @@ class LxcManager
 				@logger.debug "#{self.class}##{__method__}: " + "update db end"
 
 				@logger.debug "#{self.class}##{__method__}: " + "update nginx config start"
-				NginxController.destroy @config, reverse_proxy_substitute
+				NginxController.destroy @config, reverse_proxy_substitute.reverse_proxy
 				@logger.debug "#{self.class}##{__method__}: " + "update nginx config end"
 			end
 			@logger.debug "#{self.class}##{__method__}: " + "transaction end"
