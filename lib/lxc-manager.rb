@@ -659,6 +659,7 @@ class LxcManager
 		@logger.debug "#{self.class}##{__method__}: " + "locked: #{locked}"
 
 		container = nil
+		management_interface = nil
 
 		existing_napts = Array.new
 		existing_reverse_proxies = Array.new
