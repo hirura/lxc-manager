@@ -105,7 +105,7 @@ Saved iptables configurations are loaded every time when LXC Manager starts.
 ```sh
 iptables -F
 iptables -t nat -F
-iptables -t nat -A POSTROUTING -o ens3 -s 10.255.0.0/16 -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 10.255.0.0/16 -j MASQUERADE
 netfilter-persistent save
 ```
 
