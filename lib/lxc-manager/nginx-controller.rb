@@ -22,6 +22,9 @@ class LxcManager
 			nginx_config += "  proxy_set_header Host $http_host;\n"
 			nginx_config += "  location #{reverse_proxy.location} {\n"
 			nginx_config += "    proxy_pass http://#{reverse_proxy.container.interfaces.find_by_name( 'management' ).v4_address}:#{reverse_proxy.proxy_port}#{reverse_proxy.proxy_pass};\n"
+			nginx_config += "    proxy_http_version 1.1;\n"
+			nginx_config += "    proxy_set_header Upgrade $http_upgrade;\n"
+			nginx_config += "    proxy_set_header Connection \"upgrade\";\n"
 			if reverse_proxy.reverse_proxy_substitutes.any?
 				nginx_config += "    sub_filter_types '*';\n"
 				nginx_config += "    sub_filter_once off;\n"
