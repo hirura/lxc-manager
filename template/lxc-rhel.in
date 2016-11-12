@@ -53,13 +53,6 @@ default_path=@LXCPATH@
 lxc_network_type=veth
 lxc_network_link=lxcbr0
 
-# is this centos?
-# Alow for weird remixes like the Raspberry Pi
-#
-# Use the Mitre standard CPE identifier for the release ID if possible...
-# This may be in /etc/os-release or /etc/system-release-cpe.  We
-# should be able to use EITHER.  Give preference to /etc/os-release for now.
-
 # Detect use under userns (unsupported)
 for arg in "$@"; do
     [ "$arg" = "--" ] && break
@@ -72,11 +65,6 @@ done
 
 # Make sure the usual locations are in PATH
 export PATH=$PATH:/usr/sbin:/usr/bin:/sbin:/bin
-
-centos_host_ver=__CENTOS_HOST_VER__
-is_centos=__IS_CENTOS__
-redhat_host_ver=__REDHAT_HOST_VER__
-is_redhat=__IS_REDHAT__
 
 force_mknod()
 {
@@ -176,7 +164,7 @@ configure_rhel()
 DEVICE=eth0
 BOOTPROTO=dhcp
 ONBOOT=yes
-HOSTNAME=${UTSNAME}
+HOSTNAME=${utsname}
 NM_CONTROLLED=no
 TYPE=Ethernet
 MTU=${MTU}
@@ -186,7 +174,7 @@ EOF
     # set the hostname
     cat <<EOF > ${rootfs_path}/etc/sysconfig/network
 NETWORKING=yes
-HOSTNAME=${UTSNAME}
+HOSTNAME=${utsname}
 EOF
 
     # set minimal hosts
@@ -321,7 +309,7 @@ configure_rhel_init()
 #  power-status-changed - shutdown on SIGPWR
 #
 start on power-status-changed
-    
+
 exec /sbin/shutdown -h now "SIGPWR received"
 EOF
     fi
@@ -376,6 +364,13 @@ EOF
     force_mknod 666 $INSTALL_ROOT/dev/urandom c 1 9
 
     $YUM install $PKG_LIST
+
+    # create symlink for /var/run -> ../run 
+    if [ "$release" = "7" ]; then
+        mv $INSTALL_ROOT/var/run/* $INSTALL_ROOT/run/
+        rmdir $INSTALL_ROOT/var/run
+        ln -sf ../run $INSTALL_ROOT/var/run
+    fi
 
     if [ $? -ne 0 ]; then
         echo "Failed to download the rootfs, aborting."
@@ -747,17 +742,7 @@ if [ -z "$path" ]; then
     path=$default_path/$name
 fi
 
-if [ -z "$release" ]; then
-    if [ "$is_centos" -a "$centos_host_ver" ]; then
-        release=$centos_host_ver
-    elif [ "$is_redhat" -a "$redhat_host_ver" ]; then
-        # This is needed to clean out bullshit like 6workstation and 6server.
-        release=$(expr $redhat_host_ver : '\([0-9.]*\)')
-    else
-        echo "This is not a CentOS or Redhat host and release is missing, defaulting to 6 use -R|--release to specify release"
-        release=6
-    fi
-fi
+release=__RELEASE__
 
 if [ "$(id -u)" != "0" ]; then
     echo "This script should be run as 'root'"
@@ -842,7 +827,16 @@ then
 else
     if [ ${root_expire_password} = "yes" ]
     then
-        echo "
+        if ( mountpoint -q -- "${rootfs_path}" )
+        then
+            echo "To reset the root password, you can do:
+
+        lxc-start -n ${name}
+        lxc-attach -n ${name} -- passwd
+        lxc-stop -n ${name}
+"
+        else
+           echo "
 The root password is set up as "expired" and will require it to be changed
 at first login, which you should do as soon as possible.  If you lose the
 root password or wish to change it without starting the container, you
@@ -851,5 +845,7 @@ also reset the expired flag):
 
         chroot ${rootfs_path} passwd
 "
+        fi
     fi
 fi
+
