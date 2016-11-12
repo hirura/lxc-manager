@@ -3,7 +3,7 @@
 A tool for managing LXC containers and its networks, interfaces, napts, reverse proxies, snapshots and clones.
 
 This tool is tested on Ubuntu 16.04 OS.
-And tested LXC Containers are CentOS 6.X and RHEL 6.X.
+And tested LXC Containers are CentOS 6.X/7.X and RHEL 6.X/7.X.
 
 
 ## Installation
