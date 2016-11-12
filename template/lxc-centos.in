@@ -180,12 +180,11 @@ configure_centos()
     # set the hostname
     cat <<EOF > ${rootfs_path}/etc/sysconfig/network
 NETWORKING=yes
-#HOSTNAME=${utsname}
 EOF
 
     # set hostname on systemd CentOS systems
     if [ $release -ge 7 ]; then
-        echo "#${utsname}" > ${rootfs_path}/etc/hostname
+        touch ${rootfs_path}/etc/hostname
     fi
 
     # set minimal hosts
