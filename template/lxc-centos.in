@@ -195,9 +195,14 @@ NETWORKING=yes
 HOSTNAME=${utsname}
 EOF
 
+    # set hostname on systemd CentOS systems
+    if [ $release -ge 7 ]; then
+        echo "${utsname}" > ${rootfs_path}/etc/hostname
+    fi
+
     # set minimal hosts
     cat <<EOF > $rootfs_path/etc/hosts
-127.0.0.1 localhost $name
+127.0.0.1 localhost.localdomain localhost $name
 EOF
 
     # set minimal fstab
@@ -280,10 +285,12 @@ EOF
     echo "# For libvirt/Virtual Machine Monitor" >>${rootfs_path}/etc/securetty
     echo "pts/0"        >>${rootfs_path}/etc/securetty
 
-    # prevent mingetty from calling vhangup(2) since it fails with userns.
-    # Same issue as oracle template: prevent mingetty from calling vhangup(2)
-    # commit 2e83f7201c5d402478b9849f0a85c62d5b9f1589.
-    sed -i 's|mingetty|mingetty --nohangup|' $rootfs_path/etc/init/tty.conf
+    if [ $release -lt 7 ]; then
+        # prevent mingetty from calling vhangup(2) since it fails with userns.
+        # Same issue as oracle template: prevent mingetty from calling vhangup(2)
+        # commit 2e83f7201c5d402478b9849f0a85c62d5b9f1589.
+        sed -i 's|mingetty|mingetty --nohangup|' $rootfs_path/etc/init/tty.conf
+    fi
 
     if [ ${root_display_password} = "yes" ]
     then
@@ -315,6 +322,10 @@ configure_centos_init()
 {
     sed -i 's|.sbin.start_udev||' ${rootfs_path}/etc/rc.sysinit
     sed -i 's|.sbin.start_udev||' ${rootfs_path}/etc/rc.d/rc.sysinit
+    # imported from fedora
+    # don't mount devpts, for pete's sake
+    sed -i 's/^.*dev.pts.*$/#\0/' ${rootfs_path}/etc/rc.sysinit
+    sed -i 's/^.*dev.pts.*$/#\0/' ${rootfs_path}/etc/rc.d/rc.sysinit
     if [ "$release" = "6" ]; then
         chroot ${rootfs_path} chkconfig udev-post off
     fi
@@ -333,6 +344,41 @@ EOF
     fi
 }
 
+configure_centos_systemd()
+{
+    rm -f ${rootfs_path}/etc/systemd/system/default.target
+    touch ${rootfs_path}/etc/fstab
+    chroot ${rootfs_path} ln -s /dev/null /etc/systemd/system/udev.service
+    chroot ${rootfs_path} ln -s /lib/systemd/system/multi-user.target /etc/systemd/system/default.target
+    # Make systemd honor SIGPWR
+    chroot ${rootfs_path} ln -s /usr/lib/systemd/system/halt.target /etc/systemd/system/sigpwr.target
+
+    # if desired, prevent systemd from over-mounting /tmp with tmpfs
+    if [ $masktmp -eq 1 ]; then
+        chroot ${rootfs_path} ln -s /dev/null /etc/systemd/system/tmp.mount
+    fi
+
+    #dependency on a device unit fails it specially that we disabled udev
+    # sed -i 's/After=dev-%i.device/After=/' ${rootfs_path}/lib/systemd/system/getty\@.service
+    #
+    # Actually, the After=dev-%i.device line does not appear in the
+    # Fedora 17 or Fedora 18 systemd getty\@.service file.  It may be left
+    # over from an earlier version and it's not doing any harm.  We do need
+    # to disable the "ConditionalPathExists=/dev/tty0" line or no gettys are
+    # started on the ttys in the container.  Lets do it in an override copy of
+    # the service so it can still pass rpm verifies and not be automatically
+    # updated by a new systemd version.  --  mhw  /\/\|=mhw=|\/\/
+
+    sed -e 's/^ConditionPathExists=/# ConditionPathExists=/' \
+        -e 's/After=dev-%i.device/After=/' \
+        < ${rootfs_path}/lib/systemd/system/getty\@.service \
+        > ${rootfs_path}/etc/systemd/system/getty\@.service
+    # Setup getty service on the 4 ttys we are going to allow in the
+    # default config.  Number should match lxc.tty
+    ( cd ${rootfs_path}/etc/systemd/system/getty.target.wants
+        for i in 1 2 3 4 ; do ln -sf ../getty\@.service getty@tty${i}.service; done )
+}
+
 download_centos()
 {
 
@@ -340,8 +386,8 @@ download_centos()
     INSTALL_ROOT=$cache/partial
     mkdir -p $INSTALL_ROOT
     if [ $? -ne 0 ]; then
-    echo "Failed to create '$INSTALL_ROOT' directory"
-    return 1
+        echo "Failed to create '$INSTALL_ROOT' directory"
+        return 1
     fi
 
     # download a mini CentOS into a cache
@@ -469,7 +515,7 @@ update_centos()
 
 install_centos()
 {
-    mkdir -p /var/lock/subsys/
+    mkdir -p @LOCALSTATEDIR@/lock/subsys/
     (
     flock -x 9
     if [ $? -ne 0 ]; then
@@ -503,7 +549,7 @@ install_centos()
 
     return 0
 
-    ) 9>/var/lock/subsys/lxc-centos
+    ) 9>@LOCALSTATEDIR@/lock/subsys/lxc-centos
 
     return $?
 }
@@ -808,7 +854,13 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-configure_centos_init
+# If the systemd configuration directory exists - set it up for what we need.
+if [ $release -ge 7 ]; then
+then
+    configure_centos_systemd
+else
+    configure_centos_init
+fi
 
 if [ ! -z "$clean" ]; then
     clean || exit 1
