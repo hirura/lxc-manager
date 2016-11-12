@@ -159,27 +159,15 @@ configure_rhel()
         )
     fi
 
-    # configure the network using the dhcp
-    cat <<EOF > ${rootfs_path}/etc/sysconfig/network-scripts/ifcfg-eth0
-DEVICE=eth0
-BOOTPROTO=dhcp
-ONBOOT=yes
-HOSTNAME=${utsname}
-NM_CONTROLLED=no
-TYPE=Ethernet
-MTU=${MTU}
-DHCP_HOSTNAME=\`hostname\`
-EOF
-
     # set the hostname
     cat <<EOF > ${rootfs_path}/etc/sysconfig/network
 NETWORKING=yes
-HOSTNAME=${utsname}
+#HOSTNAME=${utsname}
 EOF
 
     # set hostname on systemd RHEL systems
     if [ $release -ge 7 ]; then
-        echo "${utsname}" > ${rootfs_path}/etc/hostname
+        echo "#${utsname}" > ${rootfs_path}/etc/hostname
     fi
 
     # set minimal hosts
