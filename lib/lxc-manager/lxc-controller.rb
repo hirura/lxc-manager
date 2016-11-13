@@ -94,7 +94,7 @@ class LxcManager
 						raise "Failed: Edit /root/.bashrc: couldn't edit #{pool_lxc_path}/config/root/.bashrc"
 					end
 
-					ret = s.run "echo 'rootroot' | chroot #{pool_lxc_path}/rootfs/ passwd --stdin root"
+					ret = s.run "echo 'root:rootroot' | chroot #{pool_lxc_path}/rootfs/ chpasswd"
 					if s.exit_status != 0
 						raise "Failed: Change Password: couldn't change root's password"
 					end
