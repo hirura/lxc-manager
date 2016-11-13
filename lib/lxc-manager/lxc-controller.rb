@@ -94,6 +94,11 @@ class LxcManager
 						raise "Failed: Edit /root/.bashrc: couldn't edit #{pool_lxc_path}/config/root/.bashrc"
 					end
 
+					ret = s.run "sed -i -E 's/^[#]?PermitRootLogin .*$/PermitRootLogin yes/' #{pool_lxc_path}/rootfs/etc/ssh/sshd_config"
+					if s.exit_status != 0
+						raise "Failed: Edit /etc/ssh/sshd_config: couldn't edit #{pool_lxc_path}/rootfs/etc/ssh/sshd_config"
+					end
+
 					ret = s.run "echo 'root:rootroot' | chroot #{pool_lxc_path}/rootfs/ chpasswd"
 					if s.exit_status != 0
 						raise "Failed: Change Password: couldn't change root's password"
