@@ -47,3 +47,15 @@ do
 		> lxc-${os}
 	chmod +x lxc-${os}
 done
+
+for os in ubuntu1604
+do
+	cat lxc-ubuntu.in \
+		| sed -E "s/@LXCPATH@/\/usr\/local\/share\/lxc\/config/g" \
+		| sed -E "s/@LXCTEMPLATECONFIG@/\/ext\/lxcpool\/lxc/g" \
+		| sed -E "s/@LOCALSTATEDIR@/\/var/g" \
+		| sed -E "s/__RELEASE__/xenial/" \
+		| sed -E "s/YUM0=\"yum/YUM0=\"yum -d 1/g" \
+		> lxc-${os}
+	chmod +x lxc-${os}
+done
