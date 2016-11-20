@@ -29,6 +29,13 @@ class LxcManager
 				if s.exit_status != 0
 					raise "Failed: ZFS: couldn't create #{path}: #{ret}"
 				end
+
+				if container.storage_type == LxcManager::Container::StorageType::NFS
+					ret = s.run "mkfs -t xfs -s size=4096 /dev/zvol/#{path}"
+					if s.exit_status != 0
+						raise "Failed: Mkfs: couldn't mkfs /dev/zvol/#{path}: #{ret}"
+					end
+				end
 			}
 			logger.debug "#{self}##{__method__}: " + "cli-agent end"
 		end
