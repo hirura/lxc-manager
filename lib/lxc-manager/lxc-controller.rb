@@ -434,6 +434,7 @@ class LxcManager
 			CliAgent.open( config['local_shell'] ){ |s|
 				mkdir_pool_lxc_success = false
 				umount_success = false
+				rmdir_pool_lxc_success = false
 
 				begin
 					ret = s.run "mkdir -p #{pool_lxc_path}"
@@ -444,15 +445,22 @@ class LxcManager
 					end
 
 					ret = s.run "mountpoint -q #{pool_lxc_path}"
-					if s.exit_status != 0
+					if s.exit_status == 0
 						ret = s.run "umount -l #{pool_lxc_path}"
 						if s.exit_status == 0
-							mount_success = true
+							umount_success = true
 						else
 							raise "Failed: Umount: couldn't umount #{pool_lxc_path}"
 						end
 					else
 						umount_success = true
+					end
+
+					ret = s.run "rm -rf #{pool_lxc_path}"
+					if s.exit_status == 0
+						rmdir_pool_lxc_success = true
+					else
+						raise "Failed: rmdir: couldn't rm -rf #{pool_lxc_path}"
 					end
 				rescue => e
 					raise
