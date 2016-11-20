@@ -21,7 +21,7 @@
 		<label for="storage_type" class="control-label">Storage Type</label>
 		<select size="1" class="form-control" id="storage_type" name="storage_type">
 			<% LxcManager::Container::StorageType.constants.each{ |storage_type| %>
-				<option value="<%= storage_type %>"><%= storage_type %></option>
+				<option value="<%= LxcManager::Container::StorageType.const_get(storage_type) %>"><%= LxcManager::Container::StorageType.const_get(storage_type) %></option>
 			<% } %>
 		</select>
 
