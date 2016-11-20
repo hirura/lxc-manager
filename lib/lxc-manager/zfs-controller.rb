@@ -20,7 +20,7 @@ class LxcManager
 			options = if container.storage_type == LxcManager::Container::StorageType::NFS
 					  "-o compression=lz4"
 				  elsif container.storage_type == LxcManager::Container::StorageType::ISCSI
-					  "-o compression=lz4 -o sync-disabled -s -b 4096 -V #{container.size_gb}G"
+					  "-o compression=lz4 -o sync=disabled -s -b 4096 -V #{container.size_gb}G"
 				  end
 
 			logger.debug "#{self}##{__method__}: " + "cli-agent start"
