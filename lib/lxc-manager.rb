@@ -87,7 +87,7 @@ class LxcManager
 			}
 			@logger.debug "#{self.class}##{__method__}: " + "configure networks end"
 
-			Container.all.each{ |container|
+			Container.all.select{ |container| container.storage_type == LxcManager::Container::StorageType::NFS }.each{ |container|
 				@logger.debug "#{self.class}##{__method__}: " + "export lxc start"
 				LxcController.exportfs @config, container
 				@logger.debug "#{self.class}##{__method__}: " + "export lxcs end"
