@@ -25,16 +25,34 @@ class LxcManager
 
 			logger.debug "#{self}##{__method__}: " + "cli-agent start"
 			LxcManager::CliAgent.open( config['local_shell'] ){ |s|
-				ret = s.run "zfs create #{options} #{path}"
-				if s.exit_status != 0
-					raise "Failed: ZFS: couldn't create #{path}: #{ret}"
-				end
+				zfs_create_success = false
+				mkfs_success = false
 
-				if container.storage_type == LxcManager::Container::StorageType::NFS
-					ret = s.run "mkfs -t xfs -s size=4096 /dev/zvol/#{path}"
+				begin
+					ret = s.run "zfs create #{options} #{path}"
 					if s.exit_status != 0
-						raise "Failed: Mkfs: couldn't mkfs /dev/zvol/#{path}: #{ret}"
+						raise "Failed: ZFS: couldn't create #{path}: #{ret}"
+					else
+						zfs_create_success = true
 					end
+
+					if container.storage_type == LxcManager::Container::StorageType::NFS
+						ret = s.run "mkfs -t xfs -s size=4096 /dev/zvol/#{path}"
+						if s.exit_status != 0
+							raise "Failed: Mkfs: couldn't mkfs /dev/zvol/#{path}: #{ret}"
+						else
+							mkfs_success = true
+						end
+					end
+				rescue => e
+					if zfs_create_success
+						ret = s.run "zfs destroy #{path}"
+						if s.exit_status != 0
+							raise "Failed: ZFS: couldn't destroy #{path}: #{ret}"
+						end
+					end
+
+					raise
 				end
 			}
 			logger.debug "#{self}##{__method__}: " + "cli-agent end"
