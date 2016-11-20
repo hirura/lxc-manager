@@ -331,6 +331,136 @@ class LxcManager
 			logger.debug "#{self}##{__method__}: " + "cli-agent end"
 		end
 
+		def self.mount_zvol config, container
+			logger = LxcManager::Logger.instance
+
+			logger.info "#{self}##{__method__}"
+
+			return if LxcManager::DRY_RUN
+
+			distro = container.distro
+
+			template = File.join( config['template_dir'], distro.template )
+			repo_url = File.join( config['repo_url'], distro.id.to_s )
+
+			zfs_pool_zvol_path     = config['zfs_pool_zvol_path']
+			dir_pool_lxc_path     = config['dir_pool_lxc_path']
+			dir_pool_share_path   = config['dir_pool_share_path']
+			dir_export_lxc_path   = config['dir_export_lxc_path']
+			dir_export_share_path = config['dir_export_share_path']
+			dir_mount_lxc_path    = config['dir_mount_lxc_path']
+			dir_mount_distro_path = config['dir_mount_distro_path']
+			dir_mount_share_path  = config['dir_mount_share_path']
+			dir_root_dev_path     = config['dir_root_dev_path']
+			pool_zvol_path    = File.join( "/dev/zvol", zfs_pool_zvol_path, container.id.to_s )
+			pool_lxc_path     = File.join( dir_pool_lxc_path, container.id.to_s )
+			export_lxc_path   = File.join( dir_export_lxc_path, container.id.to_s )
+			mount_lxc_path    = File.join( dir_mount_lxc_path, container.id.to_s )
+			mount_distro_path = File.join( dir_mount_distro_path, distro.id.to_s )
+			root_dev_path     = File.join( dir_root_dev_path, container.id.to_s )
+
+			allowed_clients = "#{config['inter_host_network_v4_address']}/#{config['inter_host_network_v4_prefix']}"
+
+			logger.debug "#{self}##{__method__}: " + "cli-agent start"
+			CliAgent.open( config['local_shell'] ){ |s|
+				mkdir_pool_lxc_success = false
+				mount_success = false
+
+				begin
+					ret = s.run "mkdir -p #{pool_lxc_path}"
+					if s.exit_status == 0
+						mkdir_pool_lxc_success = true
+					else
+						raise "Failed: mkdir -p: couldn't mkdir -p #{pool_lxc_path}"
+					end
+
+					ret = s.run "mountpoint -q #{pool_lxc_path}"
+					if s.exit_status != 0
+						ret = s.run "mount -t xfs #{pool_zvol_path} #{pool_lxc_path}"
+						if s.exit_status == 0
+							mount_success = true
+						else
+							raise "Failed: Mount: couldn't mount #{pool_zvol_path} to #{pool_lxc_path}"
+						end
+					else
+						mount_success = true
+					end
+				rescue => e
+					if mount_success
+						ret = s.run "umount -l #{pool_lxc_path}"
+					end
+
+					if mkdir_pool_lxc_success
+						ret = s.run "rm -rf #{pool_lxc_path}"
+					end
+
+					raise
+				end
+			}
+			logger.debug "#{self}##{__method__}: " + "cli-agent end"
+		end
+
+		def self.umount_zvol config, container
+			logger = LxcManager::Logger.instance
+
+			logger.info "#{self}##{__method__}"
+
+			return if LxcManager::DRY_RUN
+
+			distro = container.distro
+
+			template = File.join( config['template_dir'], distro.template )
+			repo_url = File.join( config['repo_url'], distro.id.to_s )
+
+			zfs_pool_zvol_path     = config['zfs_pool_zvol_path']
+			dir_pool_lxc_path     = config['dir_pool_lxc_path']
+			dir_pool_share_path   = config['dir_pool_share_path']
+			dir_export_lxc_path   = config['dir_export_lxc_path']
+			dir_export_share_path = config['dir_export_share_path']
+			dir_mount_lxc_path    = config['dir_mount_lxc_path']
+			dir_mount_distro_path = config['dir_mount_distro_path']
+			dir_mount_share_path  = config['dir_mount_share_path']
+			dir_root_dev_path     = config['dir_root_dev_path']
+			pool_zvol_path    = File.join( "/dev/zvol", zfs_pool_zvol_path, container.id.to_s )
+			pool_lxc_path     = File.join( dir_pool_lxc_path, container.id.to_s )
+			export_lxc_path   = File.join( dir_export_lxc_path, container.id.to_s )
+			mount_lxc_path    = File.join( dir_mount_lxc_path, container.id.to_s )
+			mount_distro_path = File.join( dir_mount_distro_path, distro.id.to_s )
+			root_dev_path     = File.join( dir_root_dev_path, container.id.to_s )
+
+			allowed_clients = "#{config['inter_host_network_v4_address']}/#{config['inter_host_network_v4_prefix']}"
+
+			logger.debug "#{self}##{__method__}: " + "cli-agent start"
+			CliAgent.open( config['local_shell'] ){ |s|
+				mkdir_pool_lxc_success = false
+				umount_success = false
+
+				begin
+					ret = s.run "mkdir -p #{pool_lxc_path}"
+					if s.exit_status == 0
+						mkdir_pool_lxc_success = true
+					else
+						raise "Failed: mkdir -p: couldn't mkdir -p #{pool_lxc_path}"
+					end
+
+					ret = s.run "mountpoint -q #{pool_lxc_path}"
+					if s.exit_status != 0
+						ret = s.run "umount -l #{pool_lxc_path}"
+						if s.exit_status == 0
+							mount_success = true
+						else
+							raise "Failed: Umount: couldn't umount #{pool_lxc_path}"
+						end
+					else
+						umount_success = true
+					end
+				rescue => e
+					raise
+				end
+			}
+			logger.debug "#{self}##{__method__}: " + "cli-agent end"
+		end
+
 		def self.exportfs config, container
 			logger = LxcManager::Logger.instance
 
