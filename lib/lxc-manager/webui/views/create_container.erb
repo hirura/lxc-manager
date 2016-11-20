@@ -17,6 +17,16 @@
 				<option value="<%= distro.id %>"><%= distro.name %></option>
 			<% } %>
 		</select>
+
+		<label for="storage_type" class="control-label">Storage Type</label>
+		<select size="1" class="form-control" id="storage_type" name="storage_type">
+			<% LxcManager::Container::StorageType.constants.each{ |storage_type| %>
+				<option value="<%= storage_type %>"><%= storage_type %></option>
+			<% } %>
+		</select>
+
+		<label for="size_gb" class="control-label">Size [GB]</label>
+		<input type="text" class="form-control" id="size_gb" name="size_gb" value="<%= size_gb rescue '' %>">
 	</div>
 
 	<a type="button" class="btn btn-default" href="javascript:history.back();">Cancel</a>
