@@ -36,7 +36,7 @@ class LxcManager
 						zfs_create_success = true
 					end
 
-					if container.storage_type == LxcManager::Container::StorageType::NFS
+					if container.storage_type == LxcManager::Container::StorageType::ISCSI
 						ret = s.run "mkfs -t xfs -s size=4096 /dev/zvol/#{path}"
 						if s.exit_status != 0
 							raise "Failed: Mkfs: couldn't mkfs /dev/zvol/#{path}: #{ret}"
