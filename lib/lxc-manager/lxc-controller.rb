@@ -64,9 +64,11 @@ class LxcManager
 						raise "Failed: Edit config: couldn't edit #{pool_lxc_path}/config"
 					end
 
-					ret = s.run "echo 'lxc.mount.entry = #{root_dev_path} dev none bind,create=dir 0 0' | tee -a #{pool_lxc_path}/config"
-					if s.exit_status != 0
-						raise "Failed: Edit config: couldn't edit #{pool_lxc_path}/config"
+					if container.storage_type == LxcManager::Container::StorageType::NFS
+						ret = s.run "echo 'lxc.mount.entry = #{root_dev_path} dev none bind,create=dir 0 0' | tee -a #{pool_lxc_path}/config"
+						if s.exit_status != 0
+							raise "Failed: Edit config: couldn't edit #{pool_lxc_path}/config"
+						end
 					end
 
 					ret = s.run "echo 'lxc.mount.entry = #{mount_distro_path} media/cdrom none bind,create=dir 0 0' | tee -a #{pool_lxc_path}/config"
