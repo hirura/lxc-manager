@@ -516,7 +516,7 @@ class LxcManager
 							raise "Failed: targetcli delete portals: #{ret}"
 						end
 
-						ret = s.run "targetcli /iscsi/iqn.2016-11.com.example:#{container.id.to_s}/tpg1/luns delete /backstores/iblock/#{container.id.to_s}"
+						ret = s.run "targetcli /iscsi/iqn.2016-11.com.example:#{container.id.to_s}/tpg1/luns delete lun0"
 						if s.exit_status == 0
 							targetcli_delete_luns_success = true
 						else
@@ -537,7 +537,7 @@ class LxcManager
 							raise "Failed: targetcli delete iscsi: #{ret}"
 						end
 
-						ret = s.run "targetcli /backstores/iblock delete name=#{container.id.to_s} dev=#{pool_zvol_path}"
+						ret = s.run "targetcli /backstores/iblock delete name=#{container.id.to_s}"
 						if s.exit_status == 0
 							targetcli_delete_iblock_success = true
 						else
