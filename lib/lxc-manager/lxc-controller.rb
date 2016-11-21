@@ -303,7 +303,7 @@ class LxcManager
 							if s.exit_status == 0
 								mount_success = true
 							else
-								raise "Failed: Mount: couldn't mount #{mount_zvol_path} to #{mount_lxc_path}"
+								raise "Failed: Mount: couldn't mount #{disk_by_path} to #{mount_lxc_path}"
 							end
 						else
 							mount_success = true
@@ -335,8 +335,6 @@ class LxcManager
 						ret = s.run "mountpoint -q #{mount_lxc_path}"
 						if s.exit_status != 0
 							ret = s.run "rm -rf #{mount_lxc_path}"
-						else
-							raise "Failed: Mount: couldn't mount #{mount_zvol_path} to #{mount_lxc_path}"
 						end
 					end
 
