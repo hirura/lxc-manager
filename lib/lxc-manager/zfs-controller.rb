@@ -88,10 +88,10 @@ class LxcManager
 
 			return if  LxcManager::DRY_RUN
 
-			path = if container.storage_type == LxcManager::Container::StorageType::NFS
-				       "#{config['zfs_pool_lxc_path']}/#{container.id}"
-			       elsif container.storage_type == LxcManager::Container::StorageType::ISCSI
-				       "#{config['zfs_pool_zvol_path']}/#{container.id}"
+			path = if snapshot.container.storage_type == LxcManager::Container::StorageType::NFS
+				       "#{config['zfs_pool_lxc_path']}/#{snapshot.container.id}"
+			       elsif snapshot.container.storage_type == LxcManager::Container::StorageType::ISCSI
+				       "#{config['zfs_pool_zvol_path']}/#{snapshot.container.id}"
 			       end
 
 			logger.debug "#{self}##{__method__}: " + "cli-agent start"
@@ -111,10 +111,10 @@ class LxcManager
 
 			return if  LxcManager::DRY_RUN
 
-			path = if container.storage_type == LxcManager::Container::StorageType::NFS
-				       "#{config['zfs_pool_lxc_path']}/#{container.id}"
+			path = if snapshot.container.storage_type == LxcManager::Container::StorageType::NFS
+				       "#{config['zfs_pool_lxc_path']}/#{snapshot.container.id}"
 			       elsif container.storage_type == LxcManager::Container::StorageType::ISCSI
-				       "#{config['zfs_pool_zvol_path']}/#{container.id}"
+				       "#{config['zfs_pool_zvol_path']}/#{snapshot.container.id}"
 			       end
 
 			logger.debug "#{self}##{__method__}: " + "cli-agent start"
@@ -134,10 +134,10 @@ class LxcManager
 
 			return if  LxcManager::DRY_RUN
 
-			path = if container.storage_type == LxcManager::Container::StorageType::NFS
-				       "#{config['zfs_pool_lxc_path']}/#{container.id}"
-			       elsif container.storage_type == LxcManager::Container::StorageType::ISCSI
-				       "#{config['zfs_pool_zvol_path']}/#{container.id}"
+			path = if snapshot.container.storage_type == LxcManager::Container::StorageType::NFS
+				       "#{config['zfs_pool_lxc_path']}/#{snapshot.container.id}"
+			       elsif snapshot.container.storage_type == LxcManager::Container::StorageType::ISCSI
+				       "#{config['zfs_pool_zvol_path']}/#{snapshot.container.id}"
 			       end
 
 			logger.debug "#{self}##{__method__}: " + "cli-agent start"
@@ -157,14 +157,14 @@ class LxcManager
 
 			return if  LxcManager::DRY_RUN
 
-			snapshot_path = if container.storage_type == LxcManager::Container::StorageType::NFS
+			snapshot_path = if clone.snapshot.container.storage_type == LxcManager::Container::StorageType::NFS
 						"#{config['zfs_pool_lxc_path']}/#{clone.snapshot.container.id}@#{clone.snapshot.id}"
-					elsif container.storage_type == LxcManager::Container::StorageType::ISCSI
+					elsif clone.snapshot.container.storage_type == LxcManager::Container::StorageType::ISCSI
 						"#{config['zfs_pool_zvol_path']}/#{clone.snapshot.container.id}@#{clone.snapshot.id}"
 					end
-			container_path = if container.storage_type == LxcManager::Container::StorageType::NFS
+			container_path = if clone.container.storage_type == LxcManager::Container::StorageType::NFS
 						 "#{config['zfs_pool_lxc_path']}/#{clone.container.id}"
-					 elsif container.storage_type == LxcManager::Container::StorageType::ISCSI
+					 elsif clone.container.storage_type == LxcManager::Container::StorageType::ISCSI
 						 "#{config['zfs_pool_zvol_path']}/#{clone.container.id}"
 					 end
 
@@ -185,9 +185,9 @@ class LxcManager
 
 			return if  LxcManager::DRY_RUN
 
-			clone_container_path = if container.storage_type == LxcManager::Container::StorageType::NFS
+			clone_container_path = if clone_container.storage_type == LxcManager::Container::StorageType::NFS
 						       "#{config['zfs_pool_lxc_path']}/#{clone_container.id}"
-					       elsif container.storage_type == LxcManager::Container::StorageType::ISCSI
+					       elsif clone_container.storage_type == LxcManager::Container::StorageType::ISCSI
 						       "#{config['zfs_pool_zvol_path']}/#{clone_container.id}"
 					       end
 
