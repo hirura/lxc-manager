@@ -299,7 +299,7 @@ class LxcManager
 
 						ret = s.run "mountpoint -q #{mount_lxc_path}"
 						if s.exit_status != 0
-							ret = s.run "mount -t xfs #{disk_by_path} #{mount_lxc_path}"
+							ret = s.run "mount -t ext4 #{disk_by_path} #{mount_lxc_path}"
 							if s.exit_status == 0
 								mount_success = true
 							else
@@ -602,7 +602,7 @@ class LxcManager
 
 					ret = s.run "mountpoint -q #{pool_lxc_path}"
 					if s.exit_status != 0
-						ret = s.run "mount -t xfs #{pool_zvol_path} #{pool_lxc_path}"
+						ret = s.run "mount -t ext4 #{pool_zvol_path} #{pool_lxc_path}"
 						if s.exit_status == 0
 							mount_success = true
 						else

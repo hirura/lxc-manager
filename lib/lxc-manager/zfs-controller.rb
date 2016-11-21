@@ -37,9 +37,9 @@ class LxcManager
 					end
 
 					if container.storage_type == LxcManager::Container::StorageType::ISCSI
-						ret = s.run "mkfs -t xfs -s size=4096 /dev/zvol/#{path}"
+						ret = s.run "mkfs -t ext4 /dev/zvol/#{path}"
 						if s.exit_status != 0
-							raise "Failed: Mkfs: couldn't mkfs /dev/zvol/#{path}: #{ret}"
+							raise "Failed: Mkfs: couldn't mkfs -t ext4 /dev/zvol/#{path}: #{ret}"
 						else
 							mkfs_success = true
 						end
