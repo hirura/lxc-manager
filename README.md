@@ -91,7 +91,7 @@ ssh-keygen -t rsa
 Remenber required packages are installed
 
 ```sh
-apt install -y lxc build-essential zfsutils-linux ruby ruby-dev yum samba sqlite3 libsqlite3-dev nginx nfs-kernel-server nfs-common iptables-persistent
+apt install -y lxc build-essential zfsutils-linux ruby ruby-dev yum samba sqlite3 libsqlite3-dev nginx nfs-kernel-server nfs-common iptables-persistent targetcli
 ```
 
 To use Ruby GEMs, LXC Manager uses bundler gem.
@@ -304,7 +304,7 @@ vi .ssh/authorized_keys
 Remenber required packages are installed
 
 ```sh
-apt install -y lxc nfs-common sysstat
+apt install -y lxc nfs-common sysstat open-iscsi
 ```
 
 To enable hosting servers, add host entry on LXC Manager WEB user interface.
