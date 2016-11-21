@@ -979,6 +979,8 @@ class LxcManager
 		interface = nil
 		lock_success = false
 		update_db_success = false
+		mount_zvol_success = false
+		umount_zvol_success = false
 
 		begin
 			unless locked
@@ -1004,14 +1006,35 @@ class LxcManager
 				update_db_success = true
 				@logger.debug "#{self.class}##{__method__}: " + "update db end"
 
+				if interface.container.storage_type == LxcManager::Container::StorageType::ISCSI
+					@logger.debug "#{self.class}##{__method__}: " + "mount zvol start"
+					LxcController.mount_zvol @config, interface.container
+					mount_zvol_success = true
+					@logger.debug "#{self.class}##{__method__}: " + "mount zvol end"
+				end
+
 				@logger.debug "#{self.class}##{__method__}: " + "update lxc start"
 				LxcController.update_interfaces @config, interface.container
 				@logger.debug "#{self.class}##{__method__}: " + "update lxc end"
+
+				if interface.container.storage_type == LxcManager::Container::StorageType::ISCSI
+					@logger.debug "#{self.class}##{__method__}: " + "umount zvol start"
+					LxcController.umount_zvol @config, interface.container
+					umount_zvol_success = true
+					@logger.debug "#{self.class}##{__method__}: " + "umount zvol end"
+				end
 			end
 			@logger.debug "#{self.class}##{__method__}: " + "transaction end"
 
 			interface
 		rescue
+			if mount_zvol_success
+				@logger.debug "#{self.class}##{__method__}: " + "umount zvol start"
+				LxcController.umount_zvol @config, interface.container
+				umount_zvol_success = true
+				@logger.debug "#{self.class}##{__method__}: " + "umount zvol end"
+			end
+
 			raise
 		ensure
 			unless locked
@@ -1804,12 +1827,14 @@ class LxcManager
 		lock_success = false
 		update_db_success = false
 		create_zfs_success = false
+		mount_zvol_success = false
 		exportfs_success = false
 		create_management_interface_success = false
 		create_management_napt_success = false
 		create_other_interfaces_success = false
 		create_other_napts_success = false
 		create_other_reverse_proxies_success = false
+		umount_zvol_success = false
 
 		begin
 			unless locked
@@ -1833,12 +1858,14 @@ class LxcManager
 				clone.save!
 
 				container = Container.new
-				container[:name]        = name
-				container[:hostname]    = hostname
-				container[:description] = description
-				container[:clone_id]    = clone.id
-				container[:distro_id]   = Snapshot.find( snapshot_id ).container.distro_id
-				container[:state]       = LxcManager::Container::STOPPED
+				container[:name]         = name
+				container[:hostname]     = hostname
+				container[:description]  = description
+				container[:clone_id]     = clone.id
+				container[:distro_id]    = Snapshot.find( snapshot_id ).container.distro_id
+				container[:state]        = LxcManager::Container::STOPPED
+				container[:storage_type] = Snapshot.find( snapshot_id ).container.storage_type
+				container[:size_gb]      = Snapshot.find( snapshot_id ).container.size_gb
 				container.save!
 
 				management_interface = Interface.new
@@ -1905,10 +1932,19 @@ class LxcManager
 				create_zfs_success = true
 				@logger.debug "#{self.class}##{__method__}: " + "create zfs end"
 
-				@logger.debug "#{self.class}##{__method__}: " + "export lxc start"
-				LxcController.exportfs @config, container
-				exportfs_success = true
-				@logger.debug "#{self.class}##{__method__}: " + "export lxcs end"
+				if container.storage_type == LxcManager::Container::StorageType::ISCSI
+					@logger.debug "#{self.class}##{__method__}: " + "mount zvol start"
+					LxcController.mount_zvol @config, container
+					mount_zvol_success = true
+					@logger.debug "#{self.class}##{__method__}: " + "mount zvol end"
+				end
+
+				if container.storage_type == LxcManager::Container::StorageType::NFS
+					@logger.debug "#{self.class}##{__method__}: " + "export lxc start"
+					LxcController.exportfs @config, container
+					exportfs_success = true
+					@logger.debug "#{self.class}##{__method__}: " + "export lxcs end"
+				end
 
 				@logger.debug "#{self.class}##{__method__}: " + "update lxc parameters start"
 				LxcController.update_parameters @config, container
@@ -1938,6 +1974,13 @@ class LxcManager
 					processed_reverse_proxies.push reverse_proxy
 				}
 				@logger.debug "#{self.class}##{__method__}: " + "update nginx config end"
+
+				if container.storage_type == LxcManager::Container::StorageType::ISCSI
+					@logger.debug "#{self.class}##{__method__}: " + "umount zvol start"
+					LxcController.umount_zvol @config, container
+					umount_zvol_success = true
+					@logger.debug "#{self.class}##{__method__}: " + "umount zvol end"
+				end
 			end
 			@logger.debug "#{self.class}##{__method__}: " + "transaction end"
 
@@ -1969,6 +2012,12 @@ class LxcManager
 				@logger.debug "#{self.class}##{__method__}: " + "unexport lxc start"
 				LxcController.unexportfs @config, container
 				@logger.debug "#{self.class}##{__method__}: " + "unexport lxcs end"
+			end
+
+			if mount_zvol_success
+				@logger.debug "#{self.class}##{__method__}: " + "umount zvol start"
+				LxcController.umount_zvol @config, container
+				@logger.debug "#{self.class}##{__method__}: " + "umount zvol end"
 			end
 
 			if create_zfs_success
