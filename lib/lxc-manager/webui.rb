@@ -718,7 +718,7 @@ class LxcManager
 				if session[:user_id]
 					lxc_manager = LxcManager.new
 					logger.info "requested by #{lxc_manager.users.find( session[:user_id] ).name}"
-					lxc_manager.create_container params[:name], params[:hostname], params[:description], params[:distro_id]
+					lxc_manager.create_container params[:name], params[:hostname], params[:description], params[:distro_id], params[:storage_type], params[:size_gb]
 					redirect "/containers"
 				else
 					logger.info 'No session[:user_id]: Redirect to /login'
@@ -728,14 +728,16 @@ class LxcManager
 				logger.error (["#{e.backtrace.first}: #{e.message} (#{e.class})"] + e.backtrace.drop(1)).join("\n\t")
 				lxc_manager = LxcManager.new
 				locals = Hash.new
-				locals["lxc_manager"] = lxc_manager
-				locals["config"]      = lxc_manager.config
-				locals["distros"]     = lxc_manager.distros
-				locals["name"]        = params[:name]
-				locals["hostname"]    = params[:hostname]
-				locals["description"] = params[:description]
-				locals["distro_id"]   = params[:distro_id]
-				locals["e"]           = e
+				locals["lxc_manager"]  = lxc_manager
+				locals["config"]       = lxc_manager.config
+				locals["distros"]      = lxc_manager.distros
+				locals["name"]         = params[:name]
+				locals["hostname"]     = params[:hostname]
+				locals["description"]  = params[:description]
+				locals["distro_id"]    = params[:distro_id]
+				locals["storage_type"] = params[:storage_type]
+				locals["size_gb"]      = params[:size_gb]
+				locals["e"]            = e
 				erb :create_container, locals: locals
 			end
 		end

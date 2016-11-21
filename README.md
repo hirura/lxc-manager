@@ -25,6 +25,7 @@ And tested LXC Containers are CentOS 6.X/7.X and RHEL 6.X/7.X.
 - nginx
 - nfs-kernel-server
 - nfs-common
+- targetcli
 
 #### Operations
 
@@ -137,6 +138,7 @@ zfs create ext/pool/lxc
 zfs create ext/pool/iso
 zfs create ext/pool/distro
 zfs create ext/pool/share
+zfs create ext/pool/zvol
 zfs create ext/export
 ```
 
@@ -146,7 +148,11 @@ Create directories and start/enable NFSv4.
 ```sh
 mkdir -p /ext/export/lxc
 mkdir -p /ext/export/distro
+mkdir -p /ext/export/share
+mount --bind /ext/pool/share /ext/export/share
+echo '/ext/pool/share /ext/export/share none defaults,bind 0 0' | tee -a /etc/fstab
 echo '/ext/export 172.16.8.0/24(rw,no_root_squash,no_subtree_check,fsid=0)' | tee /etc/exports
+echo '/ext/export/share 172.16.8.0/24(rw,no_root_squash,no_subtree_check,nohide)' | tee -a /etc/exports
 systemctl start nfs-kernel-server
 systemctl enable nfs-kernel-server
 exportfs -ra
@@ -235,6 +241,7 @@ Now you can access LXC Manager WEB user interface: http://xxx.xxx.xxx.xxx:port/
 - openssh-server
 - lxc
 - nfs-common
+- open-iscsi
 
 #### Operations
 
