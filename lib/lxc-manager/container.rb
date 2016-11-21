@@ -55,7 +55,7 @@ class LxcManager
 
 		def size_gb_cannot_be_blank_when_storage_type_is_iscsi
 			if storage_type == StorageType::ISCSI
-				if size_gb.size == 0
+				if size_gb.to_s.size == 0
 					errors.add( :size_gb, "connot benk when storage type is iscsi" )
 				end
 			end
