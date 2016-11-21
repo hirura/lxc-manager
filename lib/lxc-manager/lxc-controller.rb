@@ -152,7 +152,6 @@ class LxcManager
 
 			logger.debug "#{self}##{__method__}: " + "cli-agent start"
 			CliAgent.open( config['local_shell'] ){ |s|
-				targetcli_ls_success = false
 				targetcli_create_iblock_success = false
 				targetcli_create_iscsi_success = false
 				targetcli_set_attribute_success = false
@@ -163,9 +162,7 @@ class LxcManager
 				mkdir_root_dev_success = false
 				make_dev_files_success = false
 				iscsiadm_discovery_success = false
-				iscsiadm_node_success = false
 				iscsiadm_node_login_success = false
-				iscsiadm_session_success = false
 				mkdir_mount_lxc_path_success = false
 				mount_success = false
 				lxc_start_success = false
@@ -173,11 +170,6 @@ class LxcManager
 				begin
 					if container.storage_type == LxcManager::Container::StorageType::ISCSI
 						ret = s.run "targetcli ls /"
-						if s.exit_status == 0
-							targetcli_ls_success = true
-						else
-							raise "Failed: targetcli ls: #{ret}"
-						end
 
 						ret = s.run "targetcli /backstores/iblock create name=#{container.id.to_s} dev=#{pool_zvol_path}"
 						if s.exit_status == 0
@@ -281,11 +273,6 @@ class LxcManager
 						end
 
 						ret = s.run "iscsiadm -m node"
-						if s.exit_status == 0
-							iscsiadm_node_success = true
-						else
-							raise "Failed: iscsiadm -m node: #{ret}"
-						end
 
 						ret = s.run "iscsiadm -m node -T iqn.2016-11.com.example:#{container.id.to_s} -p #{inter_host_network_interface_v4_address} --login"
 						if s.exit_status == 0
@@ -295,11 +282,6 @@ class LxcManager
 						end
 
 						ret = s.run "iscsiadm -m session"
-						if s.exit_status == 0
-							iscsiadm_session_success = true
-						else
-							raise "Failed: iscsiadm -m session"
-						end
 
 						ret = s.run "mkdir -p #{mount_lxc_path}"
 						if s.exit_status == 0
@@ -496,11 +478,6 @@ class LxcManager
 
 					if container.storage_type == LxcManager::Container::StorageType::ISCSI
 						ret = s.run "iscsiadm -m session"
-						if s.exit_status == 0
-							iscsiadm_session_success = true
-						else
-							raise "Failed: iscsiadm -m session"
-						end
 
 						ret = s.run "iscsiadm -m node -T iqn.2016-11.com.example:#{container.id.to_s} -p #{inter_host_network_interface_v4_address} --logout"
 						if s.exit_status == 0
@@ -510,18 +487,8 @@ class LxcManager
 						end
 
 						ret = s.run "iscsiadm -m session"
-						if s.exit_status == 0
-							iscsiadm_session_success = true
-						else
-							raise "Failed: iscsiadm -m session"
-						end
 
 						ret = s.run "iscsiadm -m node"
-						if s.exit_status == 0
-							iscsiadm_node_success = true
-						else
-							raise "Failed: iscsiadm -m node: #{ret}"
-						end
 					end
 
 					s.jump( :exit )
