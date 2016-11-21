@@ -28,6 +28,8 @@ class LxcManager
 				mkdir_mount_path = false
 				mkdir_root_dev_path = false
 				mount_success = false
+				sed_iscsi_initiatorname_success = false
+				restart_iscsid_success = false
 
 				begin
 					s.jump( :ssh, target: target )
@@ -59,8 +61,31 @@ class LxcManager
 						mount_success = true
 					end
 
+					ret = s.run "sed -i -E 's/^InitiatorName=.+/InitiatorName=iqn.2016-11.com.example:#{host.name}/' /etc/iscsi/initiatorname.iscsi"
+					if s.exit_status == 0
+						sed_iscsi_initiatorname_success = true
+					else
+						raise "Failed: sed iscsi initiatorname.iscsi: #{ret}"
+					end
+
+					ret = s.run "systemctl restart iscsid"
+					if s.exit_status == 0
+						restart_iscsid_success = true
+					else
+						raise "Failed: sed iscsi initiatorname.iscsi: #{ret}"
+					end
+
 					s.jump( :exit )
 				rescue => e
+					if restart_iscsid_success
+					end
+
+					if sed_iscsi_initiatorname_success
+					end
+
+					if mount_success
+					end
+
 					if mkdir_root_dev_path
 					end
 

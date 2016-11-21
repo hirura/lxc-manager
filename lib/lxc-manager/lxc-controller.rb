@@ -758,32 +758,6 @@ class LxcManager
 					else
 						raise "Failed: export: #{allowed_clients}:#{export_lxc_path}"
 					end
-
-					ret = s.run "mkdir -p #{dir_export_share_path}"
-					if s.exit_status == 0
-						mkdir_export_share_success = true
-					else
-						raise "Failed: mkdir -p: couldn't mkdir -p #{dir_export_share_path}"
-					end
-
-					ret = s.run "mountpoint -q #{dir_export_share_path}"
-					if s.exit_status != 0
-						ret = s.run "mount --bind #{dir_pool_share_path} #{dir_export_share_path}"
-						if s.exit_status == 0
-							mount_share_success = true
-						else
-							raise "Failed: Mount: couldn't mount #{dir_pool_share_path} to #{dir_export_share_path}"
-						end
-					else
-						mount_share_success = true
-					end
-
-					ret = s.run "exportfs -o rw,no_root_squash,no_subtree_check,nohide #{allowed_clients}:#{dir_export_share_path}"
-					if s.exit_status == 0
-						export_share_success = true
-					else
-						raise "Failed: export: #{allowed_clients}:#{dir_export_share_path}"
-					end
 				rescue => e
 					if export_success
 						ret = s.run "exportfs -u #{allowed_clients}:#{export_lxc_path}"
