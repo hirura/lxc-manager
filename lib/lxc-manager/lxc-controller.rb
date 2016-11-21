@@ -306,9 +306,15 @@ class LxcManager
 							raise "Failed: mkdir -p: couldn't mkdir -p #{mount_lxc_path}"
 						end
 
+						disk_by_path = "/dev/disk/by-path/ip-#{inter_host_network_interface_v4_address}:3260-iscsi-iqn.2016-11.com.example:#{container.id.to_s}-lun-0"
+
+						ret = s.run "for i in {1..20}; do if [ -b #{disk_by_path} ]; then break; else sleep 1; fi; false; done"
+						if s.exit_status != 0
+							raise "Failed: disk device did not appear in 20 sec"
+						end
+
 						ret = s.run "mountpoint -q #{mount_lxc_path}"
 						if s.exit_status != 0
-							disk_by_path = "/dev/disk/by-path/ip-#{inter_host_network_interface_v4_address}:3260-iscsi-iqn.2016-11.com.example:#{container.id.to_s}-lun-0"
 							ret = s.run "mount -t xfs #{disk_by_path} #{mount_lxc_path}"
 							if s.exit_status == 0
 								mount_success = true
