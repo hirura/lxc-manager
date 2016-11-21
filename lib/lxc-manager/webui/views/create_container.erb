@@ -21,9 +21,9 @@
 
 		<label for="storage_type" class="control-label">Storage Type</label>
 		<select size="1" class="form-control" id="storage_type" name="storage_type">
-			<% LxcManager::Container::StorageType.constants.each{ |storage_type| %>
-				<% selected = if LxcManager::Container::StorageType.const_get(storage_type) == storage_type then "selected" else "" end rescue "" %>
-				<option value="<%= LxcManager::Container::StorageType.const_get(storage_type) %>" <%= selected %>><%= LxcManager::Container::StorageType.const_get(storage_type) %></option>
+			<% LxcManager::Container::StorageType.constants.each{ |st| %>
+				<% selected = if LxcManager::Container::StorageType.const_get(st) == storage_type then "selected" else "" end rescue "" %>
+				<option value="<%= LxcManager::Container::StorageType.const_get(st) %>" <%= selected %>><%= LxcManager::Container::StorageType.const_get(st) %></option>
 			<% } %>
 		</select>
 
