@@ -372,7 +372,7 @@ class LxcManager
 					end
 
 					if targetcli_create_luns_success
-						ret = s.run "targetcli /iscsi/iqn.2016-11.com.example:#{container.id.to_s}/tpg1/luns delete /backstores/iblock/#{container.id.to_s}"
+						ret = s.run "targetcli /iscsi/iqn.2016-11.com.example:#{container.id.to_s}/tpg1/luns delete lun0"
 					end
 
 					if targetcli_create_iscsi_success
