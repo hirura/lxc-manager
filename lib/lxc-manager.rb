@@ -1055,6 +1055,8 @@ class LxcManager
 		interface = nil
 		lock_success = false
 		update_db_success = false
+		mount_zvol_success = false
+		umount_zvol_success = false
 
 		begin
 			unless locked
@@ -1073,14 +1075,35 @@ class LxcManager
 				update_db_success = true
 				@logger.debug "#{self.class}##{__method__}: " + "update db end"
 
+				if interface.container.storage_type == LxcManager::Container::StorageType::ISCSI
+					@logger.debug "#{self.class}##{__method__}: " + "mount zvol start"
+					LxcController.mount_zvol @config, interface.container
+					mount_zvol_success = true
+					@logger.debug "#{self.class}##{__method__}: " + "mount zvol end"
+				end
+
 				@logger.debug "#{self.class}##{__method__}: " + "update lxc start"
 				LxcController.update_interfaces @config, interface.container
 				@logger.debug "#{self.class}##{__method__}: " + "update lxc end"
+
+				if interface.container.storage_type == LxcManager::Container::StorageType::ISCSI
+					@logger.debug "#{self.class}##{__method__}: " + "umount zvol start"
+					LxcController.umount_zvol @config, interface.container
+					umount_zvol_success = true
+					@logger.debug "#{self.class}##{__method__}: " + "umount zvol end"
+				end
 			end
 			@logger.debug "#{self.class}##{__method__}: " + "transaction end"
 
 			interface
 		rescue
+			if mount_zvol_success
+				@logger.debug "#{self.class}##{__method__}: " + "umount zvol start"
+				LxcController.umount_zvol @config, interface.container
+				umount_zvol_success = true
+				@logger.debug "#{self.class}##{__method__}: " + "umount zvol end"
+			end
+
 			raise
 		ensure
 			unless locked
@@ -1101,6 +1124,8 @@ class LxcManager
 		interface = nil
 		lock_success = false
 		update_db_success = false
+		mount_zvol_success = false
+		umount_zvol_success = false
 
 		begin
 			unless locked
@@ -1126,14 +1151,35 @@ class LxcManager
 				update_db_success = true
 				@logger.debug "#{self.class}##{__method__}: " + "update db end"
 
+				if interface.container.storage_type == LxcManager::Container::StorageType::ISCSI
+					@logger.debug "#{self.class}##{__method__}: " + "mount zvol start"
+					LxcController.mount_zvol @config, interface.container
+					mount_zvol_success = true
+					@logger.debug "#{self.class}##{__method__}: " + "mount zvol end"
+				end
+
 				@logger.debug "#{self.class}##{__method__}: " + "update lxc start"
 				LxcController.update_interfaces @config, interface.container
 				@logger.debug "#{self.class}##{__method__}: " + "update lxc end"
+
+				if interface.container.storage_type == LxcManager::Container::StorageType::ISCSI
+					@logger.debug "#{self.class}##{__method__}: " + "umount zvol start"
+					LxcController.umount_zvol @config, interface.container
+					umount_zvol_success = true
+					@logger.debug "#{self.class}##{__method__}: " + "umount zvol end"
+				end
 			end
 			@logger.debug "#{self.class}##{__method__}: " + "transaction end"
 
 			interface
 		rescue
+			if mount_zvol_success
+				@logger.debug "#{self.class}##{__method__}: " + "umount zvol start"
+				LxcController.umount_zvol @config, interface.container
+				umount_zvol_success = true
+				@logger.debug "#{self.class}##{__method__}: " + "umount zvol end"
+			end
+
 			raise
 		ensure
 			unless locked
