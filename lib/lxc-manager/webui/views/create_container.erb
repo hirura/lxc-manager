@@ -14,14 +14,16 @@
 		<label for="distro_id" class="control-label">Distro</label>
 		<select size="1" class="form-control" id="distro_id" name="distro_id">
 			<% distros.each{ |distro| %>
-				<option value="<%= distro.id %>"><%= distro.name %></option>
+				<% selected = if distro_id.to_i == distro.id then "selected" else "" end rescue "" %>
+				<option value="<%= distro.id %>" <%= selected %>><%= distro.name %></option>
 			<% } %>
 		</select>
 
 		<label for="storage_type" class="control-label">Storage Type</label>
 		<select size="1" class="form-control" id="storage_type" name="storage_type">
 			<% LxcManager::Container::StorageType.constants.each{ |storage_type| %>
-				<option value="<%= LxcManager::Container::StorageType.const_get(storage_type) %>"><%= LxcManager::Container::StorageType.const_get(storage_type) %></option>
+				<% selected = if LxcManager::Container::StorageType.const_get(storage_type) == storage_type then "selected" else "" end rescue "" %>
+				<option value="<%= LxcManager::Container::StorageType.const_get(storage_type) %>" <%= selected %>><%= LxcManager::Container::StorageType.const_get(storage_type) %></option>
 			<% } %>
 		</select>
 
