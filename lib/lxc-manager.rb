@@ -2007,7 +2007,7 @@ class LxcManager
 
 				@logger.debug "#{self.class}##{__method__}: " + "update iptables start"
 				other_napts.each{ |napt|
-					IptablesController.create @config, management_napt, management_interface
+					IptablesController.create @config, napt, management_interface
 					create_other_napts_success = true
 					processed_napts.push napt
 				}
