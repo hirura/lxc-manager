@@ -1,8 +1,12 @@
 <h1 class="page-header">Snapshot Detail: <%= snapshot.name %></h1>
 
+<% rollback_disabled = unless snapshot.id == snapshot.container.snapshots.map{ |s| s.id }.max then "disabled" else "" end %>
 <div class="btn-group" role="group" aria-label="...">
 	<button type="button" class="btn btn-default" onClick="edit_snapshot(<%= snapshot.id %>);">
 		<span class="glyphicon glyphicon-cog"></span> Edit
+	</button>
+	<button type="button" class="btn btn-default" onClick="rollback_snapshot(<%= snapshot.id %>);" <%= rollback_disabled %>>
+		<span class="glyphicon glyphicon-repeat"></span> Rollback
 	</button>
 	<button type="button" class="btn btn-default" onClick="create_clone(<%= snapshot.id %>);">
 		<span class="glyphicon glyphicon-duplicate"></span> Clone
