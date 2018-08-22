@@ -48,7 +48,11 @@
 											</div>
 										</td>
 										<td rowspan="<%= snapshot.clones.size %>">
+											<% rollback_disabled = unless idx == container.snapshots.size - 1 then "disabled" else "" end %>
 											<div class="btn-group btn-group-xs" role="group" aria-label="...">
+												<button type="button" class="btn btn-default" onClick="rollback_snapshot(<%= snapshot.id %>);" <%= rollback_disabled %>>
+													<span class="glyphicon glyphicon-repeat"></span> Rollback
+												</button>
 												<button type="button" class="btn btn-default" onClick="create_clone(<%= snapshot.id %>);">
 													<span class="glyphicon glyphicon-duplicate"></span> Clone
 												</button>
@@ -98,7 +102,11 @@
 									</div>
 								</td>
 								<td>
+									<% rollback_disabled = unless idx == container.snapshots.size - 1 then "disabled" else "" end %>
 									<div class="btn-group btn-group-xs" role="group" aria-label="...">
+										<button type="button" class="btn btn-default" onClick="rollback_snapshot(<%= snapshot.id %>);" <%= rollback_disabled %>>
+											<span class="glyphicon glyphicon-repeat"></span> Rollback
+										</button>
 										<button type="button" class="btn btn-default" onClick="create_clone(<%= snapshot.id %>);">
 											<span class="glyphicon glyphicon-duplicate"></span> Clone
 										</button>
