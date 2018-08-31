@@ -1,145 +1,104 @@
 <h1 class="page-header">Snapshots</h1>
 
 <div class="table-responsive">
-	<table class="table table-striped">
+	<table id="main-table" class="table table-striped">
 		<thead>
 			<tr>
 				<th>Container</th>
 				<th>Action</th>
-				<th>Snapshot</th>
-				<th></th>
-				<th></th>
-				<th>Action</th>
-				<th>Clone</th>
-				<th>Action</th>
+				<th>Snapshots</th>
 			</tr>
 		</thead>
 		<tbody>
 			<% containers.all.each{ |container| %>
-				<% if container.snapshots.any? %><!-- when container has snapshots -->
-					<% container.snapshots.each.with_index{ |snapshot, idx| %>
-						<% if snapshot.clones.any? %><!-- when snapshot has clones -->
-							<% snapshot.clones.each.with_index{ |clone, jdx| %>
-								<tr>
-									<% if idx == 0 && jdx == 0 %>
-										<td rowspan="<%= container.snapshots.inject(0){ |sum, ss| sum + if ss.clones.size == 0 then 1 else ss.clones.size end } %>">
-											<%= container.name %>
-										</td>
-										<td rowspan="<%= container.snapshots.inject(0){ |sum, ss| sum + if ss.clones.size == 0 then 1 else ss.clones.size end } %>">
-											<div class="btn-group btn-group-xs" role="group" aria-label="...">
-												<button type="button" class="btn btn-default" onClick="create_snapshot(<%= container.id %>);">
-													<span class="glyphicon glyphicon-camera"></span> Take Snapshot
-												</button>
-											</div>
-										</td>
-									<% end %>
-									<% if jdx == 0 %>
-										<td rowspan="<%= snapshot.clones.size %>">
-											<%= snapshot.name %>
-										</td>
-										<td rowspan="<%= snapshot.clones.size %>">
-											<%= snapshot.created_at.in_time_zone( config['time_zone'] ) %>
-										</td>
-										<td rowspan="<%= snapshot.clones.size %>">
-											<div class="btn-group btn-group-xs" role="group" aria-label="...">
-												<button type="button" class="btn btn-default" onClick="snapshot_detail(<%= snapshot.id %>);">
-													<span class="glyphicon glyphicon-info-sign"></span> Detail
-												</button>
-											</div>
-										</td>
-										<td rowspan="<%= snapshot.clones.size %>">
-											<% rollback_disabled = unless idx == container.snapshots.size - 1 then "disabled" else "" end %>
-											<div class="btn-group btn-group-xs" role="group" aria-label="...">
-												<button type="button" class="btn btn-default" onClick="rollback_snapshot(<%= snapshot.id %>);" <%= rollback_disabled %>>
-													<span class="glyphicon glyphicon-repeat"></span> Rollback
-												</button>
-												<button type="button" class="btn btn-default" onClick="create_clone(<%= snapshot.id %>);">
-													<span class="glyphicon glyphicon-duplicate"></span> Clone
-												</button>
-												<button type="button" class="btn btn-default" onClick="destroy_snapshot(<%= snapshot.id %>);">
-													<span class="glyphicon glyphicon-remove-sign"></span> Destroy
-												</button>
-											</div>
-										</td>
-									<% end %>
-									<td>
-										<%= clone.container.name %>
-									</td>
-									<td>
-										<div class="btn-group btn-group-xs" role="group" aria-label="...">
-											<button type="button" class="btn btn-default" onClick="promote(<%= clone.container.id %>);">
-												<span class="glyphicon glyphicon-random"></span> Promote
-											</button>
-										</div>
-									</td>
-								</tr>
-							<% } %>
-						<% else %><!-- when snapshot does NOT have clones -->
-							<tr>
-								<% if idx == 0 %>
-									<td rowspan="<%= container.snapshots.inject(0){ |sum, ss| sum + if ss.clones.size == 0 then 1 else ss.clones.size end } %>">
-										<%= container.name %>
-									</td>
-									<td rowspan="<%= container.snapshots.inject(0){ |sum, ss| sum + if ss.clones.size == 0 then 1 else ss.clones.size end } %>">
-										<div class="btn-group btn-group-xs" role="group" aria-label="...">
-											<button type="button" class="btn btn-default" onClick="create_snapshot(<%= container.id %>);">
-												<span class="glyphicon glyphicon-camera"></span> Take Snapshot
-											</button>
-										</div>
-									</td>
-								<% end %>
-								<td>
-									<%= snapshot.name %>
-								</td>
-								<td>
-									<%= snapshot.created_at.in_time_zone( config['time_zone'] ) %>
-								</td>
-								<td>
-									<div class="btn-group btn-group-xs" role="group" aria-label="...">
-										<button type="button" class="btn btn-default" onClick="snapshot_detail(<%= snapshot.id %>);">
-											<span class="glyphicon glyphicon-info-sign"></span> Detail
-										</button>
-									</div>
-								</td>
-								<td>
-									<% rollback_disabled = unless idx == container.snapshots.size - 1 then "disabled" else "" end %>
-									<div class="btn-group btn-group-xs" role="group" aria-label="...">
-										<button type="button" class="btn btn-default" onClick="rollback_snapshot(<%= snapshot.id %>);" <%= rollback_disabled %>>
-											<span class="glyphicon glyphicon-repeat"></span> Rollback
-										</button>
-										<button type="button" class="btn btn-default" onClick="create_clone(<%= snapshot.id %>);">
-											<span class="glyphicon glyphicon-duplicate"></span> Clone
-										</button>
-										<button type="button" class="btn btn-default" onClick="destroy_snapshot(<%= snapshot.id %>);">
-											<span class="glyphicon glyphicon-remove-sign"></span> Destroy
-										</button>
-									</div>
-								</td>
-								<td></td>
-								<td></td>
-							</tr>
+				<tr>
+					<td>
+						<%= container.name %>
+					</td>
+					<td>
+						<div class="btn-group btn-group-xs" role="group" aria-label="...">
+							<button type="button" class="btn btn-default" onClick="create_snapshot(<%= container.id %>);">
+								<span class="glyphicon glyphicon-camera"></span> Take Snapshot
+							</button>
+						</div>
+					</td>
+					<td>
+						<% if container.snapshots.any? %><!-- when container has snapshots -->
+							<table class="table table-striped">
+								<thead>
+									<tr>
+										<th>Snapshot</th>
+										<th></th>
+										<th></th>
+										<th>Action</th>
+										<th>Clones</th>
+									</tr>
+								</thead>
+								<tbody>
+									<% container.snapshots.each{ |snapshot| %>
+										<tr>
+											<td>
+												<%= snapshot.name %>
+											</td>
+											<td>
+												<%= snapshot.created_at.in_time_zone( config['time_zone'] ) %>
+											</td>
+											<td>
+												<div class="btn-group btn-group-xs" role="group" aria-label="...">
+													<button type="button" class="btn btn-default" onClick="snapshot_detail(<%= snapshot.id %>);">
+														<span class="glyphicon glyphicon-info-sign"></span> Detail
+													</button>
+												</div>
+											</td>
+											<td>
+												<% rollback_disabled = unless snapshot.id == snapshot.container.snapshots.map{ |s| s.id }.max then "disabled" else "" end %>
+												<div class="btn-group btn-group-xs" role="group" aria-label="...">
+													<button type="button" class="btn btn-default" onClick="rollback_snapshot(<%= snapshot.id %>);" <%= rollback_disabled %>>
+														<span class="glyphicon glyphicon-repeat"></span> Rollback
+													</button>
+													<button type="button" class="btn btn-default" onClick="create_clone(<%= snapshot.id %>);">
+														<span class="glyphicon glyphicon-duplicate"></span> Clone
+													</button>
+													<button type="button" class="btn btn-default" onClick="destroy_snapshot(<%= snapshot.id %>);">
+														<span class="glyphicon glyphicon-remove-sign"></span> Destroy
+													</button>
+												</div>
+											</td>
+											<td>
+												<% if snapshot.clones.any? %><!-- when snapshot has clones -->
+													<table class="table table-striped">
+														<thead>
+															<tr>
+																<th>Clone</th>
+																<th>Action</th>
+															</tr>
+														</thead>
+														<tbody>
+															<% snapshot.clones.each{ |clone| %>
+																<tr>
+																	<td>
+																		<%= clone.container.name %>
+																	</td>
+																	<td>
+																		<div class="btn-group btn-group-xs" role="group" aria-label="...">
+																			<button type="button" class="btn btn-default" onClick="promote(<%= clone.container.id %>);">
+																				<span class="glyphicon glyphicon-random"></span> Promote
+																			</button>
+																		</div>
+																	</td>
+																</tr>
+															<% } %>
+														</tbody>
+													</table>
+												<% end %>
+											</td>
+										</tr>
+									<% } %>
+								</tbody>
+							</table>
 						<% end %>
-					<% } %>
-				<% else %><!-- when container does NOT have snapshots -->
-					<tr>
-						<td>
-							<%= container.name %>
-						</td>
-						<td>
-							<div class="btn-group btn-group-xs" role="group" aria-label="...">
-								<button type="button" class="btn btn-default" onClick="create_snapshot(<%= container.id %>);">
-									<span class="glyphicon glyphicon-camera"></span> Take Snapshot
-								</button>
-							</div>
-						</td>
-						<td></td>
-						<td></td>
-						<td></td>
-						<td></td>
-						<td></td>
-						<td></td>
-					</tr>
-				<% end %>
+					</td>
+				</tr>
 			<% } %>
 		</tbody>
 	</table>
