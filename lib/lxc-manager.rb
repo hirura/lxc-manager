@@ -32,6 +32,7 @@ require_relative 'lxc-manager/iptables-controller'
 
 require_relative 'lxc-manager/host-resource-monitor'
 require_relative 'lxc-manager/storage-resource-monitor'
+require_relative 'lxc-manager/container-resource-monitor'
 
 class LxcManager
 	attr_reader :config

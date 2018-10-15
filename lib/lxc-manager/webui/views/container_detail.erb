@@ -47,6 +47,35 @@
 				<td>Size [GB]</td>
 				<td><%= container.size_gb %></td>
 			</tr>
+			<% if container.host %>
+                                <% resource = lxc_manager.class::ContainerResourceMonitor.get_resource lxc_manager.config, container %>
+				<tr>
+					<td>CPU Usage</td>
+					<td><%= resource['cpu'].to_s %></td>
+				</tr>
+				<!--
+				<tr>
+					<td>BlkIO Usage</td>
+					<td><%= resource['blkio'].to_s %></td>
+				</tr>
+				-->
+				<tr>
+					<td>Memory Usage</td>
+					<td><%= resource['memory'].to_s %></td>
+				</tr>
+				<tr>
+					<td>Network TX Bytes</td>
+					<td><%= resource['tx_bytes'].to_s %></td>
+				</tr>
+				<tr>
+					<td>Network RX Bytes</td>
+					<td><%= resource['rx_bytes'].to_s %></td>
+				</tr>
+				<tr>
+					<td>Network Total Bytes</td>
+					<td><%= resource['total_bytes'].to_s %></td>
+				</tr>
+			<% end %>
 		</tbody>
 	</table>
 </div>
